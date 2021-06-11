@@ -1,0 +1,17 @@
+{
+    if (true && false)
+    {
+        print(true);
+    }
+    else
+    {
+        if (false || true)
+        {
+            print(false);
+        }
+        else
+        {
+            print(true);
+        }
+    }
+}
