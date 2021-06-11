@@ -1,17 +1,6 @@
 {
-    if (true && false)
-    {
-        print(true);
-    }
-    else
-    {
-        if (false || true)
-        {
-            print(false);
-        }
-        else
-        {
-            print(true);
-        }
-    }
+    int x = 2;
+    int y = 5;
+    var z = x + y;
+    print(z);
 }

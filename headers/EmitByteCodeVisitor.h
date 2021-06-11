@@ -7,9 +7,7 @@ class EmitByteCodeVisitor : public Visitor
 {
     private:
     std::vector<ByteCodeInstruction> instructions;
-    void printInstruction(unsigned char opcode, int constant);
-    int numInstructions = 0;
-  
+
     public:
     void visitBinOPNode(BinOpNode &node);
     void visitIntNode(IntNode &node);
@@ -18,7 +16,7 @@ class EmitByteCodeVisitor : public Visitor
     void visitPrintNode(PrintNode &node);
     void visitVariableDeclarationNode(VariableDeclarationNode &node);
     void visitBooleanLiteralNode(BooleanLiteralNode &node);
-
+    void visitVariableNode(VariableNode &node);
     std::vector<ByteCodeInstruction> getInstructions();
 };
 

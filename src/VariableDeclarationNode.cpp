@@ -1,8 +1,9 @@
 #include "../headers/VariableDeclarationNode.h"
 #include "../headers/Visitor.h"
 
-VariableDeclarationNode::VariableDeclarationNode(Type type, std::string identifier, ASTNode *rhs): type{type}, identifier{identifier}
+VariableDeclarationNode::VariableDeclarationNode(VariableNode* varNode, ASTNode *rhs)
 {
+    this->varNode = varNode;
     this->rhs = rhs;
 }
 

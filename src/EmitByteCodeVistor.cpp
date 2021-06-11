@@ -7,15 +7,11 @@
 #include "../headers/BooleanLiteralNode.h"
 #include "../headers/Visitor.h"
 #include "../headers/PrintNode.h"
+#include "../headers/VariableNode.h"
 #include <iomanip>
 
-void EmitByteCodeVisitor::printInstruction(uint8_t opcode, int constant)
-{
-    numInstructions++;
-}
 
-void EmitByteCodeVisitor::visitBinOPNode(BinOpNode &node)
-{
+void EmitByteCodeVisitor::visitBinOPNode(BinOpNode &node){
     if (node.left){
         node.left->accept(*this);
     }
@@ -53,23 +49,19 @@ void EmitByteCodeVisitor::visitBinOPNode(BinOpNode &node)
     return;
 };
 
-void EmitByteCodeVisitor::visitIntNode(IntNode &node)
-{  
-    printInstruction(LOAD, node.value);
+void EmitByteCodeVisitor::visitIntNode(IntNode &node){  
     instructions.push_back(ByteCodeInstruction(LOAD, node.value));
     return;
 }
 
-void EmitByteCodeVisitor::visitCompoundStatementNode(CompoundStatementNode &node)
-{
+void EmitByteCodeVisitor::visitCompoundStatementNode(CompoundStatementNode &node){
     for (auto statement : node.getStatements())
     {
         statement->accept(*this);
     }
 }
 
-void EmitByteCodeVisitor::visitIfStatementNode(IfStatementNode &node)
-{
+void EmitByteCodeVisitor::visitIfStatementNode(IfStatementNode &node){
     int falsePointer = 0xff, thenJump = 0, elseJump = 0;
     node.getCondition()->accept(*this);
 
@@ -99,21 +91,24 @@ void EmitByteCodeVisitor::visitIfStatementNode(IfStatementNode &node)
     instructions[elseJump].setConstant(instructions.size());
 }
 
-std::vector<ByteCodeInstruction> EmitByteCodeVisitor::getInstructions()
-{
+std::vector<ByteCodeInstruction> EmitByteCodeVisitor::getInstructions(){
     return instructions;
 }
 
-void EmitByteCodeVisitor::visitPrintNode(PrintNode &node)
-{
+void EmitByteCodeVisitor::visitPrintNode(PrintNode &node){
     node.contents->accept(*this);
     instructions.push_back(PRINT);
 }
 
-void EmitByteCodeVisitor::visitVariableDeclarationNode(VariableDeclarationNode &node) {node.rhs->accept(*this);}
+void EmitByteCodeVisitor::visitVariableDeclarationNode(VariableDeclarationNode &node) {
+    node.rhs->accept(*this);
+}
 
-void EmitByteCodeVisitor::visitBooleanLiteralNode(BooleanLiteralNode &node) 
-{
+void EmitByteCodeVisitor::visitVariableNode(VariableNode &node){
+    return;
+}
+
+void EmitByteCodeVisitor::visitBooleanLiteralNode(BooleanLiteralNode &node) {
     instructions.push_back(ByteCodeInstruction(LOAD, node.value));
     return;
 }

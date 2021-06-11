@@ -6,6 +6,10 @@
 #include "Lexer.h"
 #include "AstNode.h"
 #include "BinOpNode.h"
+#include <unordered_map>
+#include <stack>
+#include <string>
+#include "Value.h"
 class Parser
 {
     private:
@@ -20,6 +24,8 @@ class Parser
     bool isBinaryOperator(SyntaxType syntaxType);
     int getOperatorPrecedence(SyntaxType op);
     int position = 0;
+    int scope = 0;
+    std::stack<std::unordered_map<std::string, Type>> symbolTableStack;
 
     public:
     Parser(std::string text);

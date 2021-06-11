@@ -16,6 +16,7 @@ class TypeCheckingVisitor : public Visitor
     void visitVariableDeclarationNode(VariableDeclarationNode &node);
     void visitBooleanLiteralNode(BooleanLiteralNode &node);
     void setType(Type type);
+    void visitVariableNode(VariableNode &node);
     Type getType();
 };
 

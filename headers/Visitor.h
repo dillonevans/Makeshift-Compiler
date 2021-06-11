@@ -8,6 +8,7 @@ class IfStatementNode;
 class PrintNode;
 class VariableDeclarationNode;
 class BooleanLiteralNode;
+class VariableNode;
 
 class Visitor
 {
@@ -19,6 +20,7 @@ class Visitor
     virtual void visitPrintNode(PrintNode &node) = 0;
     virtual void visitVariableDeclarationNode(VariableDeclarationNode &node) = 0;
     virtual void visitBooleanLiteralNode(BooleanLiteralNode &node) = 0;
+    virtual void visitVariableNode(VariableNode &node) = 0;
 
 
 };

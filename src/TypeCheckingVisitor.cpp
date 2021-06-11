@@ -7,6 +7,7 @@
 #include "../headers/BooleanLiteralNode.h"
 #include "../headers/Visitor.h"
 #include "../headers/PrintNode.h"
+#include "../headers/VariableNode.h"
 #include "../headers/Value.h"
 #include <iostream>
 
@@ -105,7 +106,34 @@ void TypeCheckingVisitor::visitPrintNode(PrintNode &node)
     return;
 }
 
-void TypeCheckingVisitor::visitVariableDeclarationNode(VariableDeclarationNode &node) {node.rhs->accept(*this);}
+void TypeCheckingVisitor::visitVariableNode(VariableNode &node)
+{
+    this->setType(node.type);
+    return;
+}
+
+void TypeCheckingVisitor::visitVariableDeclarationNode(VariableDeclarationNode &node) 
+{
+    Type t1, t2;
+    node.varNode->accept(*this);
+    t1 = this->getType();
+    node.rhs->accept(*this);
+    t2 = this->getType();
+    if (t1 == ImplicitVarType) 
+    {
+        node.varNode->type = t2;
+        this->setType(t2);
+    }
+    else if (t1 == IntegerPrimitive)
+    {
+        if (t2 == BooleanPrimitive)
+        {
+            std::cerr << "Cannot initialize type int with type boolean";
+            exit(EXIT_FAILURE);
+        }
+        this->setType(t1);
+    }
+}
 
 void TypeCheckingVisitor::visitBooleanLiteralNode(BooleanLiteralNode &node) 
 {

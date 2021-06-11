@@ -9,9 +9,9 @@
 #include "../headers/VariableDeclarationNode.h"
 #include "../headers/BooleanLiteralNode.h"
 #include "../headers/IfStatementNode.h"
+#include "../headers/VariableNode.h"
 
-Parser::Parser(std::string text) : lexer{text}
-{
+Parser::Parser(std::string text) : lexer{text}{
     //Perform Lexical Analysis
     while (!lexer.hasReachedEOF()) {tokens.push_back(lexer.lex());} 
 };
@@ -19,8 +19,7 @@ Parser::Parser(std::string text) : lexer{text}
 /**
  * Returns true if the passed Syntax Type is a binary operator
  */
-bool Parser::isBinaryOperator(SyntaxType syntaxType)
-{
+bool Parser::isBinaryOperator(SyntaxType syntaxType){
     switch(syntaxType)
     {
         case MultToken:
@@ -41,8 +40,7 @@ bool Parser::isBinaryOperator(SyntaxType syntaxType)
 /**
  * Prints all of the tokens
  */ 
-void Parser::printTokens()
-{
+void Parser::printTokens(){
     std::cout << "Printing Tokens...\n";
     for (auto x : tokens)
     {
@@ -50,26 +48,22 @@ void Parser::printTokens()
     }
 };
 
-SyntaxToken Parser::peek(int offset)
-{
+SyntaxToken Parser::peek(int offset){
     auto index = position + offset;
     return tokens[index];
 };
 
-SyntaxToken Parser::getCurrentToken()
-{
+SyntaxToken Parser::getCurrentToken(){
     return peek(0);
 };
 
-SyntaxToken Parser::getNextToken()
-{
+SyntaxToken Parser::getNextToken(){
     auto current = getCurrentToken();
     position++;
     return current;
 };
 
-SyntaxToken Parser::match(SyntaxType expected, std::string text)
-{
+SyntaxToken Parser::match(SyntaxType expected, std::string text){
     auto current = getCurrentToken();
     if (current.syntaxType == expected)
     {
@@ -82,8 +76,7 @@ SyntaxToken Parser::match(SyntaxType expected, std::string text)
     exit(EXIT_FAILURE);
 };
 
-int Parser::getOperatorPrecedence(SyntaxType op)
-{
+int Parser::getOperatorPrecedence(SyntaxType op){
     switch (op)
     {
         case MultToken:
@@ -105,8 +98,7 @@ int Parser::getOperatorPrecedence(SyntaxType op)
     return 0;
 }
 
-OperatorType Parser::getOperatorType(SyntaxType op)
-{
+OperatorType Parser::getOperatorType(SyntaxType op){
     switch(op)
     {
         case AddToken:
@@ -130,10 +122,11 @@ OperatorType Parser::getOperatorType(SyntaxType op)
     }
 };
 
-ASTNode* Parser::parsePrimary()
-{
+ASTNode* Parser::parsePrimary(){
     std::string result;
     ASTNode *tree;
+    std::string identifier;
+    auto localSymbolTable = symbolTableStack.top();
     switch(getCurrentToken().syntaxType)
     {
         case IntegerLiteralToken:
@@ -150,6 +143,10 @@ ASTNode* Parser::parsePrimary()
             tree = parseExpression(0);
             match(RightParenthesisToken, ")");
             return tree;
+        case IdentifierToken:
+            identifier = getCurrentToken().text;
+            match(IdentifierToken, "identifier");
+            return new VariableNode(localSymbolTable[identifier], identifier);
         default:
             match(IntegerLiteralToken, "Integer Literal");
             exit(EXIT_FAILURE);
@@ -160,8 +157,7 @@ ASTNode* Parser::parsePrimary()
 /**
  * Construct an AST via precendence climbing parsing
  */
-ASTNode* Parser::parseExpression(int minimumPrecedence)
-{
+ASTNode* Parser::parseExpression(int minimumPrecedence){
     ASTNode *left = parsePrimary(), *right;
     SyntaxType lookAhead = getCurrentToken().syntaxType;
     
@@ -179,8 +175,7 @@ ASTNode* Parser::parseExpression(int minimumPrecedence)
     return left;
 };
 
-ASTNode* Parser::parseStatement()
-{
+ASTNode* Parser::parseStatement(){
     switch(getCurrentToken().syntaxType)
     {
         case IfToken:
@@ -198,9 +193,11 @@ ASTNode* Parser::parseStatement()
     return nullptr;
 }
 
-ASTNode* Parser::parseCompoundStatement()
-{
+ASTNode* Parser::parseCompoundStatement(){
     match(LeftCurlyBraceToken, "{");
+    scope++;
+    symbolTableStack.push(std::unordered_map<std::string, Type>());
+    std::cout << "Scope: " << scope << "\n";
     std::vector<ASTNode*> statements;
     /*While inside the compound staement*/
     while (getCurrentToken().syntaxType != RightCurlyBraceToken)
@@ -209,11 +206,12 @@ ASTNode* Parser::parseCompoundStatement()
         statements.push_back(parseStatement());
     }
     match(RightCurlyBraceToken, "}");
+    scope--;
+    symbolTableStack.pop();
     return new CompoundStatementNode(statements);
 }
 
-ASTNode *Parser::parseIfStatement()
-{
+ASTNode *Parser::parseIfStatement(){
     ASTNode *condition, *stmtBody, *elseBody = nullptr;
     match(IfToken, "if");
     match(LeftParenthesisToken, "(");
@@ -229,8 +227,7 @@ ASTNode *Parser::parseIfStatement()
     return new IfStatementNode(condition, stmtBody, elseBody);
 }
 
-ASTNode* Parser::parsePrintStatement()
-{
+ASTNode* Parser::parsePrintStatement(){
     ASTNode *contents = nullptr;
     match(PrintToken, "print");
     match(LeftParenthesisToken, "(");
@@ -240,39 +237,57 @@ ASTNode* Parser::parsePrintStatement()
     return new PrintNode(contents);
 }
 
-ASTNode* Parser::parseVariableDeclarationStatement()
-{
+ASTNode* Parser::parseVariableDeclarationStatement(){
     ASTNode *rhs = nullptr;
+    auto localSymbolTable = symbolTableStack.top();
+    symbolTableStack.pop();
     std::string identifier;
     SyntaxToken token = getCurrentToken();
-
+    bool isVarType = false;
+    Type t;
     switch(getCurrentToken().syntaxType)
     {
         case IntKeywordToken:
             match(IntKeywordToken, "int");
+            t = IntegerPrimitive;
             break;
         case DoubleKeywordToken:
             match(DoubleKeywordToken, "double");
             break;
         default:
+            t = ImplicitVarType;
             match(VarKeywordToken, "var");
+            isVarType = true;
             break;
     }
     if (token.syntaxType == IdentifierToken){
         identifier = token.text;
     }
 
+    localSymbolTable[identifier] = t;
+    symbolTableStack.push(localSymbolTable);
+
     match(IdentifierToken, "an identifier");
     token = getCurrentToken();
-    if (token.syntaxType != EqualsToken)
-    {
-        match(SemicolonToken, ";");
-    }
-    else
+    //Implicitly typed variables require an assignment so as to deduce the type
+    if (isVarType)
     {
         match(EqualsToken, "=");
         rhs = parseExpression(0);
         match(SemicolonToken, ";");
     }
-    return new VariableDeclarationNode(IntegerPrimitive, identifier, rhs);
+    else
+    {
+        if (token.syntaxType != EqualsToken)
+        {
+            match(SemicolonToken, ";");
+        }
+        else
+        {
+            match(EqualsToken, "=");
+            rhs = parseExpression(0);
+            match(SemicolonToken, ";");
+        }
+    }
+    return new VariableDeclarationNode(new VariableNode(t, identifier), rhs);
 }

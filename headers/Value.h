@@ -6,7 +6,8 @@
 enum Type
 {
     IntegerPrimitive,
-    BooleanPrimitive
+    BooleanPrimitive,
+    ImplicitVarType
 };
 
 class Value
@@ -23,10 +24,5 @@ class Value
     public:
     Value(int literal);
     Value(bool literal);
-
-
-
-
-
 };
 #endif
