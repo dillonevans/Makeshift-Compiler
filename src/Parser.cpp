@@ -10,11 +10,27 @@
 #include "../headers/BooleanLiteralNode.h"
 #include "../headers/IfStatementNode.h"
 #include "../headers/VariableNode.h"
+#include "../headers/ScopeTreeNode.h"
 
 Parser::Parser(std::string text) : lexer{text}{
     //Perform Lexical Analysis
     while (!lexer.hasReachedEOF()) {tokens.push_back(lexer.lex());} 
+    ///Push the Global Scope Symbol Table
+    scopeTreeStack.push(new ScopeTreeNode());
 };
+
+bool contains(ScopeTreeNode* node, std::string identifer){
+    if (!node) {return false;}
+    std::cout <<node->getSymbolTable().size() << "\n";
+    if (node->getSymbolTable().find(identifer) == node->getSymbolTable().end())
+    {
+        return contains(node->getParentNode(), identifer);
+    }
+    else
+    {
+        return true;
+    }
+}
 
 /**
  * Returns true if the passed Syntax Type is a binary operator
@@ -126,7 +142,6 @@ ASTNode* Parser::parsePrimary(){
     std::string result;
     ASTNode *tree;
     std::string identifier;
-    auto localSymbolTable = symbolTableStack.top();
     switch(getCurrentToken().syntaxType)
     {
         case IntegerLiteralToken:
@@ -146,7 +161,16 @@ ASTNode* Parser::parsePrimary(){
         case IdentifierToken:
             identifier = getCurrentToken().text;
             match(IdentifierToken, "identifier");
-            return new VariableNode(localSymbolTable[identifier], identifier);
+            if (contains(scopeTreeStack.top(), identifier))
+            {
+                return new VariableNode(scopeTreeStack.top()->getSymbolTable()[identifier], identifier);
+            }
+            else
+            {
+                std::cerr << "Variable \"" << identifier << "\" does not exist in the current scope";
+                exit(EXIT_FAILURE);
+            }
+
         default:
             match(IntegerLiteralToken, "Integer Literal");
             exit(EXIT_FAILURE);
@@ -195,10 +219,11 @@ ASTNode* Parser::parseStatement(){
 
 ASTNode* Parser::parseCompoundStatement(){
     match(LeftCurlyBraceToken, "{");
-    scope++;
-    symbolTableStack.push(std::unordered_map<std::string, Type>());
+    ScopeTreeNode *parent = scopeTreeStack.top(), *child = new ScopeTreeNode();
+    scopeTreeStack.push(child);
+    parent->addChild(child);
     std::cout << "Scope: " << scope << "\n";
-    std::vector<ASTNode*> statements;
+    std::vector<ASTNode*> statements; //CHANGE THIS TO LIST
     /*While inside the compound staement*/
     while (getCurrentToken().syntaxType != RightCurlyBraceToken)
     {  
@@ -207,7 +232,7 @@ ASTNode* Parser::parseCompoundStatement(){
     }
     match(RightCurlyBraceToken, "}");
     scope--;
-    symbolTableStack.pop();
+    scopeTreeStack.pop();
     return new CompoundStatementNode(statements);
 }
 
@@ -239,8 +264,6 @@ ASTNode* Parser::parsePrintStatement(){
 
 ASTNode* Parser::parseVariableDeclarationStatement(){
     ASTNode *rhs = nullptr;
-    auto localSymbolTable = symbolTableStack.top();
-    symbolTableStack.pop();
     std::string identifier;
     SyntaxToken token = getCurrentToken();
     bool isVarType = false;
@@ -260,15 +283,14 @@ ASTNode* Parser::parseVariableDeclarationStatement(){
             isVarType = true;
             break;
     }
+    token = getCurrentToken();
     if (token.syntaxType == IdentifierToken){
         identifier = token.text;
     }
-
-    localSymbolTable[identifier] = t;
-    symbolTableStack.push(localSymbolTable);
-
+    scopeTreeStack.top()->addEntry(identifier, t);
     match(IdentifierToken, "an identifier");
     token = getCurrentToken();
+
     //Implicitly typed variables require an assignment so as to deduce the type
     if (isVarType)
     {

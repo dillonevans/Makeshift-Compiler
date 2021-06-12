@@ -1,7 +1,12 @@
 #include "../headers/ScopeTreeNode.h"
-
-void ScopeTreeNode::addChild(std::string identifier, Type t){
+#include <iostream>
+void ScopeTreeNode::addEntry(std::string identifier, Type t){
     this->symbolTable[identifier] = t;
+}
+
+void ScopeTreeNode::addChild(ScopeTreeNode *node){
+    children.push_back(node);
+    node->setParent(this);
 }
 
 std::list<ScopeTreeNode*> ScopeTreeNode::getChildren(){

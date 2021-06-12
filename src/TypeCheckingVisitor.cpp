@@ -11,7 +11,6 @@
 #include "../headers/Value.h"
 #include <iostream>
 
-
 void TypeCheckingVisitor::visitBinOPNode(BinOpNode &node)
 {
     Type t1, t2;

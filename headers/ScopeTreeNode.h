@@ -7,7 +7,7 @@
 class ScopeTreeNode
 {
     private:
-    ScopeTreeNode* parent;
+    ScopeTreeNode* parent = nullptr;
     std::list<ScopeTreeNode*> children;
     std::unordered_map<std::string, Type> symbolTable;
 
@@ -15,7 +15,8 @@ class ScopeTreeNode
     ScopeTreeNode* getParentNode();
     std::list<ScopeTreeNode*> getChildren();
     std::unordered_map<std::string, Type> getSymbolTable();
-    void addChild(std::string identifier, Type type);
+    void addEntry(std::string identifier, Type type);
+    void addChild(ScopeTreeNode *childNode);
     void setParent(ScopeTreeNode *parent);
 };
 #endif

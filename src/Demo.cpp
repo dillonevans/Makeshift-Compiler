@@ -23,7 +23,7 @@ int main()
     AST->accept(v);
     VM virtualMachine(v.getInstructions());
     // virtualMachine.dumpByteCode();
-    // virtualMachine.disassembleInstruction();
+    virtualMachine.disassembleInstruction();
     virtualMachine.run();
 
   

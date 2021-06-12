@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include <stack>
 #include <string>
+#include "ScopeTreeNode.h"
 #include "Value.h"
 class Parser
 {
@@ -25,7 +26,7 @@ class Parser
     int getOperatorPrecedence(SyntaxType op);
     int position = 0;
     int scope = 0;
-    std::stack<std::unordered_map<std::string, Type>> symbolTableStack;
+    std::stack<ScopeTreeNode*> scopeTreeStack;
 
     public:
     Parser(std::string text);
