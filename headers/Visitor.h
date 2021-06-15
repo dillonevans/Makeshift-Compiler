@@ -5,10 +5,13 @@ class IntNode;
 class BinOpNode;
 class CompoundStatementNode;
 class IfStatementNode;
+class FunctionNode;
+
 class PrintNode;
 class VariableDeclarationNode;
 class BooleanLiteralNode;
 class VariableNode;
+class ReturnNode;
 
 class Visitor
 {
@@ -21,6 +24,8 @@ class Visitor
     virtual void visitVariableDeclarationNode(VariableDeclarationNode &node) = 0;
     virtual void visitBooleanLiteralNode(BooleanLiteralNode &node) = 0;
     virtual void visitVariableNode(VariableNode &node) = 0;
+    virtual void visitFunctionNode(FunctionNode &node) = 0;
+    virtual void visitReturnNode(ReturnNode &node) = 0;
 
 
 };

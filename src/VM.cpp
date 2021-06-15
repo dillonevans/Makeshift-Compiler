@@ -64,9 +64,11 @@ std::string VM::disassembleInstruction(ByteCodeInstruction instruction)
             return "JUMP\t" + std::to_string(constant);
         case PRINT:
             return "PRINT\t";
+        case LABEL:
+            return "L" + std::to_string(constant);
        
     }
-    return "OOF";
+    return "UNKNOWN";
 }
 void VM::disassembleInstruction()
 {
@@ -143,6 +145,8 @@ void VM::run()
                 a = stack[stack.size() - 1];
                 stack.pop_back();
                 std::cout << a << "\n";
+            case LABEL:
+                continue;
             default:
                 break;
         }

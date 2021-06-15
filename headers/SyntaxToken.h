@@ -34,7 +34,8 @@ enum SyntaxType
     BitwiseAndToken,
     LogicalAndToken,
     BitwiseOrToken,
-    LogicalOrToken
+    LogicalOrToken,
+    ReturnKeyword
 };
 
 class SyntaxToken

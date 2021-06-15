@@ -5,8 +5,8 @@
 class TypeCheckingVisitor : public Visitor
 {
     private:
-    Type type;
-  
+    Type type, functionType;
+    
     public:
     void visitBinOPNode(BinOpNode &node);
     void visitIntNode(IntNode &node);
@@ -15,8 +15,11 @@ class TypeCheckingVisitor : public Visitor
     void visitPrintNode(PrintNode &node);
     void visitVariableDeclarationNode(VariableDeclarationNode &node);
     void visitBooleanLiteralNode(BooleanLiteralNode &node);
-    void setType(Type type);
     void visitVariableNode(VariableNode &node);
+    void visitFunctionNode(FunctionNode &node);
+    void visitReturnNode(ReturnNode &node);
+    void setType(Type type);
+
     Type getType();
 };
 

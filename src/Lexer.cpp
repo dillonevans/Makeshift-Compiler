@@ -86,6 +86,10 @@ SyntaxToken Lexer::lex()
                     return SyntaxToken(PrintToken, lexeme);
                 }
                 break;
+            case 'r':
+                if (lexeme == "return"){
+                    return SyntaxToken(ReturnKeyword, lexeme);
+                }
             case 't':
                 if (lexeme == "true"){
                     return SyntaxToken(TrueKeywordToken, lexeme);

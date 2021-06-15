@@ -1,13 +1,14 @@
-#ifndef EBCV_H
-#define EBCV_H
+#ifndef PRINT_VISITOR_H
+#define PRINT_VISITOR_H
 #include "Visitor.h"
-#include <vector>
-#include "ByteCodeInstruction.h"
-class EmitByteCodeVisitor : public Visitor
+#include "Value.h"
+#include <stack>
+#include <string>
+class PrintVisitor : public Visitor
 {
     private:
-    std::vector<ByteCodeInstruction> instructions;
-    int labelCount = 0;
+    std::stack<std::string> indentation;
+
     public:
     void visitBinOPNode(BinOpNode &node);
     void visitIntNode(IntNode &node);
@@ -19,7 +20,8 @@ class EmitByteCodeVisitor : public Visitor
     void visitVariableNode(VariableNode &node);
     void visitFunctionNode(FunctionNode &node);
     void visitReturnNode(ReturnNode &node);
-    std::vector<ByteCodeInstruction> getInstructions();
 };
+
+
 
 #endif

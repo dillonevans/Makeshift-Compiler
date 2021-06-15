@@ -10,6 +10,7 @@
 #include <stack>
 #include <string>
 #include "ScopeTreeNode.h"
+#include "FunctionNode.h"
 #include "Value.h"
 class Parser
 {
@@ -21,6 +22,7 @@ class Parser
     SyntaxToken getNextToken();
     SyntaxToken match(SyntaxType expected, std::string text);
     ASTNode* parsePrimary();
+
     OperatorType getOperatorType(SyntaxType op);
     bool isBinaryOperator(SyntaxType syntaxType);
     int getOperatorPrecedence(SyntaxType op);
@@ -36,6 +38,9 @@ class Parser
     ASTNode* parseIfStatement();
     ASTNode* parsePrintStatement();
     ASTNode* parseVariableDeclarationStatement();
+    ASTNode* parseReturnStatement();
+    ASTNode* parseFunctionDeclaration();
+
     void printTokens();
 
 };

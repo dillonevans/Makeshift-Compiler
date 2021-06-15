@@ -19,7 +19,8 @@
     JUMP,
     PRINT,
     AND,
-    OR
+    OR,
+    LABEL,
 };
 class ByteCodeInstruction
 {

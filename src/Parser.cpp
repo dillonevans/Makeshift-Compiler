@@ -11,6 +11,9 @@
 #include "../headers/IfStatementNode.h"
 #include "../headers/VariableNode.h"
 #include "../headers/ScopeTreeNode.h"
+#include "../headers/ReturnNode.h"
+#include "../headers/TypeCheckingVisitor.h"
+#include "../headers/FunctionNode.h"
 
 Parser::Parser(std::string text) : lexer{text}{
     //Perform Lexical Analysis
@@ -212,6 +215,8 @@ ASTNode* Parser::parseStatement(){
         case IntKeywordToken:
         case BoolKeywordToken:
             return parseVariableDeclarationStatement();
+        case ReturnKeyword:
+            return parseReturnStatement();
     }
     
     return nullptr;
@@ -223,11 +228,12 @@ ASTNode* Parser::parseCompoundStatement(){
     scopeTreeStack.push(child);
     parent->addChild(child);
     std::cout << "Scope: " << scope << "\n";
-    std::vector<ASTNode*> statements; //CHANGE THIS TO LIST
-    /*While inside the compound staement*/
+    std::vector<ASTNode*> statements; 
+    scope++;
+    //While inside the compound staement
     while (getCurrentToken().syntaxType != RightCurlyBraceToken)
     {  
-        /*Add each statement to the statement list*/
+        //Add each statement to the statement list
         statements.push_back(parseStatement());
     }
     match(RightCurlyBraceToken, "}");
@@ -277,6 +283,9 @@ ASTNode* Parser::parseVariableDeclarationStatement(){
         case DoubleKeywordToken:
             match(DoubleKeywordToken, "double");
             break;
+        case BoolKeywordToken:
+            match(BoolKeywordToken, "bool");
+            break;
         default:
             t = ImplicitVarType;
             match(VarKeywordToken, "var");
@@ -284,11 +293,15 @@ ASTNode* Parser::parseVariableDeclarationStatement(){
             break;
     }
     token = getCurrentToken();
-    if (token.syntaxType == IdentifierToken){
-        identifier = token.text;
+    match(IdentifierToken, "an identifer");
+    identifier = token.text;
+
+    if (contains(scopeTreeStack.top(), identifier))
+    {
+        std::cerr << "Error: Variable \"" << identifier << "\" already exists.\n";
+        exit(EXIT_FAILURE);
     }
     scopeTreeStack.top()->addEntry(identifier, t);
-    match(IdentifierToken, "an identifier");
     token = getCurrentToken();
 
     //Implicitly typed variables require an assignment so as to deduce the type
@@ -312,4 +325,35 @@ ASTNode* Parser::parseVariableDeclarationStatement(){
         }
     }
     return new VariableDeclarationNode(new VariableNode(t, identifier), rhs);
+}
+
+ASTNode* Parser::parseReturnStatement(){
+    ASTNode *toReturn;
+    match(ReturnKeyword, "return");
+    toReturn = parseExpression(0);
+    match(SemicolonToken, ";");
+    return new ReturnNode(toReturn);
+}
+
+ASTNode* Parser::parseFunctionDeclaration() 
+{
+    Type returnType;
+    ASTNode* body;
+    std::vector<VariableNode*> parameterList;
+    switch(getCurrentToken().syntaxType)
+    {
+        case IntKeywordToken:
+            returnType = IntegerPrimitive;
+            match(IntKeywordToken, "int");
+            break;
+        case BoolKeywordToken:
+            returnType = BooleanPrimitive;
+            match(BoolKeywordToken, "bool");
+            break;
+    }
+    match(IdentifierToken, "an identifier");
+    match(LeftParenthesisToken, "(");
+    match(RightParenthesisToken, ")");
+    body = parseCompoundStatement();
+    return new FunctionNode(returnType, parameterList, body);
 }

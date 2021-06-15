@@ -8,6 +8,9 @@
 #include "../headers/Visitor.h"
 #include "../headers/PrintNode.h"
 #include "../headers/VariableNode.h"
+#include "../headers/FunctionNode.h"
+#include "../headers/ReturnNode.h"
+
 #include "../headers/Value.h"
 #include <iostream>
 
@@ -132,10 +135,37 @@ void TypeCheckingVisitor::visitVariableDeclarationNode(VariableDeclarationNode &
         }
         this->setType(t1);
     }
+    else if (t1 == BooleanPrimitive)
+    {
+        if (t2 == IntegerPrimitive)
+        {
+            std::cerr << "Cannot initialize type bool with type int";
+            exit(EXIT_FAILURE);
+        }
+        this->setType(BooleanPrimitive);
+    }
 }
 
 void TypeCheckingVisitor::visitBooleanLiteralNode(BooleanLiteralNode &node) 
 {
     this->setType(BooleanPrimitive);
+    return;
+}
+
+void TypeCheckingVisitor::visitReturnNode(ReturnNode &node)
+{
+    node.toReturn->accept(*this);
+    Type returnType = this->getType();
+    if (returnType != functionType)
+    {
+        std::cerr << "Function  must return specified type\n";
+    }
+    return;
+}
+
+void TypeCheckingVisitor::visitFunctionNode(FunctionNode &node)
+{
+    functionType = node.getReturnType();
+    node.getFunctionBody()->accept(*this);
     return;
 }

@@ -8,6 +8,8 @@
 #include "../headers/Visitor.h"
 #include "../headers/PrintNode.h"
 #include "../headers/VariableNode.h"
+#include "../headers/FunctionNode.h"
+#include "../headers/ReturnNode.h"
 #include <iomanip>
 
 
@@ -82,13 +84,16 @@ void EmitByteCodeVisitor::visitIfStatementNode(IfStatementNode &node){
     instructions.push_back(ByteCodeInstruction(JUMP, falsePointer));
     /*If the condition was false, the VM jumps here and executes the else clause so we pop the stack
     to get rid of the result */
+    instructions.push_back(ByteCodeInstruction(LABEL, labelCount++));
     instructions.push_back(ByteCodeInstruction(POP));
 
     if (node.getElseBody()) {
         node.getElseBody()->accept(*this);
     }
-    
     instructions[elseJump].setConstant(instructions.size());
+    instructions.push_back(ByteCodeInstruction(LABEL, labelCount++));
+
+    
 }
 
 std::vector<ByteCodeInstruction> EmitByteCodeVisitor::getInstructions(){
@@ -112,3 +117,15 @@ void EmitByteCodeVisitor::visitBooleanLiteralNode(BooleanLiteralNode &node) {
     instructions.push_back(ByteCodeInstruction(LOAD, node.value));
     return;
 }
+
+void EmitByteCodeVisitor::visitReturnNode(ReturnNode &node)
+{
+    return;
+}
+
+void EmitByteCodeVisitor::visitFunctionNode(FunctionNode &node)
+{
+    node.getFunctionBody()->accept(*this);
+    return;
+}
+
