@@ -25,6 +25,7 @@ void VM::dumpByteCode()
             case LOAD:
             case JF:
             case JUMP:
+            case CALL:
                 std::cout << "0x" << std::setfill('0') << std::setw(4) << std::hex << +i.getOpcode() << "\t0x"  << std::setfill('0') << std::setw(4) << i.getConstant()<< "\n";
                 break;
         }
@@ -66,6 +67,9 @@ std::string VM::disassembleInstruction(ByteCodeInstruction instruction)
             return "PRINT\t";
         case LABEL:
             return "L" + std::to_string(constant);
+        case CALL:
+            return "CALL\t" + std::to_string(constant);
+
        
     }
     return "UNKNOWN";
@@ -147,6 +151,13 @@ void VM::run()
                 std::cout << a << "\n";
             case LABEL:
                 continue;
+            case CALL:
+                callStack.push(CallFrame());
+                ip = instructions[ip].getConstant() - 1;
+                break;
+            case RETURN:
+                callStack.pop();
+                break;
             default:
                 break;
         }

@@ -2,10 +2,14 @@
 #include "ByteCodeInstruction.h"
 #include <string>
 #include <cstdint>
+#include <stack>
+#include "CallFrame.h"
 class VM
 {
     private:
         std::string disassembleInstruction(ByteCodeInstruction instruction);
+        std::stack<CallFrame> callStack;
+        
     public:
         std::vector<ByteCodeInstruction> instructions;
         std::vector<int> stack;

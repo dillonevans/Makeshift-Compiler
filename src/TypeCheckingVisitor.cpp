@@ -10,7 +10,7 @@
 #include "../headers/VariableNode.h"
 #include "../headers/FunctionNode.h"
 #include "../headers/ReturnNode.h"
-
+#include "../headers/ProgramNode.h"
 #include "../headers/Value.h"
 #include <iostream>
 
@@ -168,4 +168,17 @@ void TypeCheckingVisitor::visitFunctionNode(FunctionNode &node)
     functionType = node.getReturnType();
     node.getFunctionBody()->accept(*this);
     return;
+}
+
+void TypeCheckingVisitor::visitFunctionCallNode(FunctionCallNode &node)
+{
+
+}
+
+void TypeCheckingVisitor::visitProgramNode(ProgramNode &node)
+{
+    for (auto x : node.getProgramUnits())
+    {
+        x->accept(*this);
+    }
 }

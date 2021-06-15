@@ -48,6 +48,8 @@
         "list": "cpp",
         "deque": "cpp",
         "stack": "cpp",
-        "xhash": "cpp"
+        "xhash": "cpp",
+        "cctype": "cpp",
+        "concepts": "cpp"
     }
 }

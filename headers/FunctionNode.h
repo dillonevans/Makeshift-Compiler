@@ -17,7 +17,7 @@ class FunctionNode : public ASTNode
  
     public: 
     FunctionNode(Type returnType);
-    FunctionNode(Type returnType, std::vector<VariableNode*> parameterList, ASTNode* functionBody);
+    FunctionNode(std::string functionName, Type returnType, std::vector<VariableNode*> parameterList, ASTNode* functionBody);
     ASTNode* getFunctionBody();
     std::vector<VariableNode*> getParameterList();
     Type getReturnType();

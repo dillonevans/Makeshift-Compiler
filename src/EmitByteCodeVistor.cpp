@@ -9,9 +9,11 @@
 #include "../headers/PrintNode.h"
 #include "../headers/VariableNode.h"
 #include "../headers/FunctionNode.h"
+#include "../headers/FunctionCallNode.h"
 #include "../headers/ReturnNode.h"
+#include "../headers/ProgramNode.h"
 #include <iomanip>
-
+#include <iostream>
 
 void EmitByteCodeVisitor::visitBinOPNode(BinOpNode &node){
     if (node.left){
@@ -92,8 +94,6 @@ void EmitByteCodeVisitor::visitIfStatementNode(IfStatementNode &node){
     }
     instructions[elseJump].setConstant(instructions.size());
     instructions.push_back(ByteCodeInstruction(LABEL, labelCount++));
-
-    
 }
 
 std::vector<ByteCodeInstruction> EmitByteCodeVisitor::getInstructions(){
@@ -125,7 +125,26 @@ void EmitByteCodeVisitor::visitReturnNode(ReturnNode &node)
 
 void EmitByteCodeVisitor::visitFunctionNode(FunctionNode &node)
 {
+    instructions.push_back(ByteCodeInstruction(LABEL, labelCount++));
+    std::cout << node.getFunctionName() << "\n";
+    functionAddressMap[node.getFunctionName()] = instructions.size() - 1;
     node.getFunctionBody()->accept(*this);
     return;
 }
 
+void EmitByteCodeVisitor::visitFunctionCallNode(FunctionCallNode &node)
+{
+    instructions.push_back(ByteCodeInstruction(CALL, functionAddressMap[node.identifier]));
+}
+
+void EmitByteCodeVisitor::visitProgramNode(ProgramNode &node)
+{
+    //This makes the call to main, the address gets recalculated afterwards
+    instructions.push_back(ByteCodeInstruction(CALL, 0xff));
+    for (auto x : node.getProgramUnits())
+    {
+        x->accept(*this);
+    }
+    //After the bytecode instructions have been generated, update the address of main
+    instructions[0].setConstant(functionAddressMap["main"]);
+}

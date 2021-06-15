@@ -2,11 +2,14 @@
 #define EBCV_H
 #include "Visitor.h"
 #include <vector>
+#include <unordered_map>
 #include "ByteCodeInstruction.h"
 class EmitByteCodeVisitor : public Visitor
 {
     private:
     std::vector<ByteCodeInstruction> instructions;
+    std::unordered_map<std::string, int> functionAddressMap;
+
     int labelCount = 0;
     public:
     void visitBinOPNode(BinOpNode &node);
@@ -19,6 +22,9 @@ class EmitByteCodeVisitor : public Visitor
     void visitVariableNode(VariableNode &node);
     void visitFunctionNode(FunctionNode &node);
     void visitReturnNode(ReturnNode &node);
+    void visitFunctionCallNode(FunctionCallNode &node);
+    void visitProgramNode(ProgramNode &node);
+
     std::vector<ByteCodeInstruction> getInstructions();
 };
 

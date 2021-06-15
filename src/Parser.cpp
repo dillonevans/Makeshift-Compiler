@@ -14,7 +14,7 @@
 #include "../headers/ReturnNode.h"
 #include "../headers/TypeCheckingVisitor.h"
 #include "../headers/FunctionNode.h"
-
+#include "../headers/ProgramNode.h"
 Parser::Parser(std::string text) : lexer{text}{
     //Perform Lexical Analysis
     while (!lexer.hasReachedEOF()) {tokens.push_back(lexer.lex());} 
@@ -164,6 +164,7 @@ ASTNode* Parser::parsePrimary(){
         case IdentifierToken:
             identifier = getCurrentToken().text;
             match(IdentifierToken, "identifier");
+            //Add support for discerning function calls and variable names
             if (contains(scopeTreeStack.top(), identifier))
             {
                 return new VariableNode(scopeTreeStack.top()->getSymbolTable()[identifier], identifier);
@@ -339,6 +340,7 @@ ASTNode* Parser::parseFunctionDeclaration()
 {
     Type returnType;
     ASTNode* body;
+    std::string identifier;
     std::vector<VariableNode*> parameterList;
     switch(getCurrentToken().syntaxType)
     {
@@ -351,9 +353,26 @@ ASTNode* Parser::parseFunctionDeclaration()
             match(BoolKeywordToken, "bool");
             break;
     }
+    if (getCurrentToken().syntaxType == IdentifierToken)
+    {
+        identifier = getCurrentToken().text;
+        scopeTreeStack.top()->addEntry(identifier, returnType);
+    }
     match(IdentifierToken, "an identifier");
     match(LeftParenthesisToken, "(");
     match(RightParenthesisToken, ")");
     body = parseCompoundStatement();
-    return new FunctionNode(returnType, parameterList, body);
+    std::cout << identifier << "\n";
+    return new FunctionNode(identifier, returnType, parameterList, body);
+}
+
+ASTNode* Parser::parseProgram()
+{
+    std::vector<ASTNode*> units;
+    std::cout << getCurrentToken().syntaxType;
+    while (getCurrentToken().syntaxType == IntKeywordToken)
+    {
+        units.push_back(parseFunctionDeclaration());
+    }
+    return new ProgramNode(units);
 }

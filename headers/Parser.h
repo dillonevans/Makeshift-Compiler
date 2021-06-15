@@ -40,6 +40,7 @@ class Parser
     ASTNode* parseVariableDeclarationStatement();
     ASTNode* parseReturnStatement();
     ASTNode* parseFunctionDeclaration();
+    ASTNode* parseProgram();
 
     void printTokens();
 

@@ -12,7 +12,8 @@ class VariableDeclarationNode;
 class BooleanLiteralNode;
 class VariableNode;
 class ReturnNode;
-
+class FunctionCallNode;
+class ProgramNode;
 class Visitor
 {
     public:
@@ -26,6 +27,8 @@ class Visitor
     virtual void visitVariableNode(VariableNode &node) = 0;
     virtual void visitFunctionNode(FunctionNode &node) = 0;
     virtual void visitReturnNode(ReturnNode &node) = 0;
+    virtual void visitFunctionCallNode(FunctionCallNode &node) = 0;
+    virtual void visitProgramNode(ProgramNode &node) = 0;
 
 
 };

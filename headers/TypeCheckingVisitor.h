@@ -18,6 +18,8 @@ class TypeCheckingVisitor : public Visitor
     void visitVariableNode(VariableNode &node);
     void visitFunctionNode(FunctionNode &node);
     void visitReturnNode(ReturnNode &node);
+    void visitFunctionCallNode(FunctionCallNode &node);
+    void visitProgramNode(ProgramNode &node);
     void setType(Type type);
 
     Type getType();

@@ -19,10 +19,8 @@ int main()
     PrintVisitor p;
     Parser parser("in.txt");
     parser.printTokens();
-    ASTNode* AST = parser.parseFunctionDeclaration();
+    ASTNode* AST = parser.parseProgram();
     AST->accept(typeChecker);
-
-   
 
     AST->accept(v);
     VM virtualMachine(v.getInstructions());

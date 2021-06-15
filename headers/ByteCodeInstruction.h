@@ -21,6 +21,7 @@
     AND,
     OR,
     LABEL,
+    CALL
 };
 class ByteCodeInstruction
 {

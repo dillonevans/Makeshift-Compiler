@@ -100,9 +100,8 @@ SyntaxToken Lexer::lex()
                     return SyntaxToken(VarKeywordToken, lexeme);
                 }
                 break;
-            default:
-                return SyntaxToken(IdentifierToken, lexeme);
         }
+        return SyntaxToken(IdentifierToken, lexeme);
     }
     else
     {

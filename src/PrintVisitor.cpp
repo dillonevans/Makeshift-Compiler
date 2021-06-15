@@ -65,3 +65,13 @@ void PrintVisitor::visitReturnNode(ReturnNode &node)
 {
     
 }
+
+void PrintVisitor::visitFunctionCallNode(FunctionCallNode &node) 
+{
+    
+}
+
+void PrintVisitor::visitProgramNode(ProgramNode &node)
+{
+
+}
