@@ -5,7 +5,7 @@ IntNode::IntNode(int value)
     this->value = value;
 };
 
-void IntNode::accept(Visitor &v)
+void IntNode::accept(Visitor& v)
 {
-    v.visitIntNode(*this);
+    v.visitIntNode(this);
 }

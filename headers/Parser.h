@@ -14,7 +14,7 @@
 #include "Value.h"
 class Parser
 {
-    private:
+private:
     std::vector<SyntaxToken> tokens;
     Lexer lexer;
     SyntaxToken peek(int offset);
@@ -30,7 +30,7 @@ class Parser
     int scope = 0;
     std::stack<ScopeTreeNode*> scopeTreeStack;
 
-    public:
+public:
     Parser(std::string text);
     ASTNode* parseExpression(int minimumPrecedence);
     ASTNode* parseCompoundStatement();
@@ -41,8 +41,8 @@ class Parser
     ASTNode* parseReturnStatement();
     ASTNode* parseFunctionDeclaration();
     ASTNode* parseProgram();
+    ASTNode* parseExpressionStatement();
 
     void printTokens();
-
 };
 #endif

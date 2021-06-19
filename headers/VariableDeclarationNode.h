@@ -7,14 +7,21 @@
 #include "VariableNode.h"
 class VariableDeclarationNode : public ASTNode
 {
-    public:
-    ASTNode *rhs;
-    Type type;
+
+private:
+    ASTNode* rhs;
     std::string identifier;
-    VariableNode *varNode;
-    
-    VariableDeclarationNode(VariableNode *varNode, ASTNode *rhs);
-    void accept(Visitor &v);
+    VariableNode* varNode;
+    Type type;
+
+public:
+    ASTNode* getRHS();
+    Type getType();
+    std::string getIdentifier();
+    VariableNode* getVarNode();
+
+    VariableDeclarationNode(VariableNode* varNode, ASTNode* rhs, std::string identifier);
+    void accept(Visitor& v);
 };
 
 #endif

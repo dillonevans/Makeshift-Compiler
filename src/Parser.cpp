@@ -14,17 +14,41 @@
 #include "../headers/ReturnNode.h"
 #include "../headers/TypeCheckingVisitor.h"
 #include "../headers/FunctionNode.h"
+#include "../headers/FunctionCallNode.h"
+
 #include "../headers/ProgramNode.h"
-Parser::Parser(std::string text) : lexer{text}{
+
+/**
+ *Constructor for the Parser
+ */
+Parser::Parser(std::string text) : lexer{ text }
+{
     //Perform Lexical Analysis
-    while (!lexer.hasReachedEOF()) {tokens.push_back(lexer.lex());} 
+    while (!lexer.hasReachedEOF())
+    {
+        tokens.push_back(lexer.lex());
+    }
+
     ///Push the Global Scope Symbol Table
     scopeTreeStack.push(new ScopeTreeNode());
 };
 
-bool contains(ScopeTreeNode* node, std::string identifer){
-    if (!node) {return false;}
-    std::cout <<node->getSymbolTable().size() << "\n";
+/**
+ * Returns true if the identifier is contained within the current or
+ * parent scope.
+ */
+bool contains(ScopeTreeNode* node, std::string identifer)
+{
+    /*If there is no node, we've exhausted our search: return false*/
+    if (!node)
+    {
+        return false;
+    }
+
+    /**
+     * If the identifier is not found within the current scope,
+     * recursively search the parent scope.
+     */
     if (node->getSymbolTable().find(identifer) == node->getSymbolTable().end())
     {
         return contains(node->getParentNode(), identifer);
@@ -38,8 +62,9 @@ bool contains(ScopeTreeNode* node, std::string identifer){
 /**
  * Returns true if the passed Syntax Type is a binary operator
  */
-bool Parser::isBinaryOperator(SyntaxType syntaxType){
-    switch(syntaxType)
+bool Parser::isBinaryOperator(SyntaxType syntaxType)
+{
+    switch (syntaxType)
     {
         case MultToken:
         case DivideToken:
@@ -51,6 +76,8 @@ bool Parser::isBinaryOperator(SyntaxType syntaxType){
         case GreaterThanOrEqualToToken:
         case LogicalOrToken:
         case LogicalAndToken:
+        case EqualsToken:
+        case AssignmentToken:
             return true;
     }
     return false;
@@ -58,46 +85,68 @@ bool Parser::isBinaryOperator(SyntaxType syntaxType){
 
 /**
  * Prints all of the tokens
- */ 
-void Parser::printTokens(){
+ */
+void Parser::printTokens()
+{
     std::cout << "Printing Tokens...\n";
-    for (auto x : tokens)
+    for (auto& x : tokens)
     {
-        std::cout << x.text << "\n";
+        std::cout << x.getText() << "\n";
     }
 };
 
-SyntaxToken Parser::peek(int offset){
+/**
+ * Looks ahead in the token table by an offset
+ */
+SyntaxToken Parser::peek(int offset)
+{
     auto index = position + offset;
     return tokens[index];
 };
 
-SyntaxToken Parser::getCurrentToken(){
+/**
+ * Return the current token
+ */
+SyntaxToken Parser::getCurrentToken()
+{
     return peek(0);
 };
 
-SyntaxToken Parser::getNextToken(){
+/**
+ * Consume and return the current token
+ */
+SyntaxToken Parser::getNextToken()
+{
     auto current = getCurrentToken();
     position++;
     return current;
 };
 
-SyntaxToken Parser::match(SyntaxType expected, std::string text){
+/**
+ * Returns the current token if the passed syntax is what is expected
+ */
+SyntaxToken Parser::match(SyntaxType expected, std::string text)
+{
     auto current = getCurrentToken();
-    if (current.syntaxType == expected)
+    if (current.getSyntaxType() == expected)
     {
         return getNextToken();
     }
     else
     {
-        std::cerr << "Unexpected Token \"" << current.text << "\". Expected " << text << ".";
+        std::cerr << "Unexpected Token \"" << current.getText() << "\". Expected " << text << ".";
     }
     exit(EXIT_FAILURE);
 };
 
-int Parser::getOperatorPrecedence(SyntaxType op){
+int Parser::getOperatorPrecedence(SyntaxType op)
+{
     switch (op)
     {
+        case AssignmentToken:
+            return 6;
+        case EqualsToken:
+            return 5;
         case MultToken:
         case DivideToken:
             return 4;
@@ -117,8 +166,9 @@ int Parser::getOperatorPrecedence(SyntaxType op){
     return 0;
 }
 
-OperatorType Parser::getOperatorType(SyntaxType op){
-    switch(op)
+OperatorType Parser::getOperatorType(SyntaxType op)
+{
+    switch (op)
     {
         case AddToken:
             return AdditionOperator;
@@ -136,19 +186,25 @@ OperatorType Parser::getOperatorType(SyntaxType op){
             return LogicalAndOperator;
         case LogicalOrToken:
             return LogicalOrOperator;
+        case EqualsToken:
+            return AssignmentOperator;
         default:
             exit(EXIT_FAILURE);
     }
 };
 
-ASTNode* Parser::parsePrimary(){
+/**
+ * Parses tokens such as literals and function calls.
+ */
+ASTNode* Parser::parsePrimary()
+{
     std::string result;
-    ASTNode *tree;
+    ASTNode* tree;
     std::string identifier;
-    switch(getCurrentToken().syntaxType)
+    switch (getCurrentToken().getSyntaxType())
     {
         case IntegerLiteralToken:
-            result = match(IntegerLiteralToken, "Integer Literal").text;
+            result = match(IntegerLiteralToken, "Integer Literal").getText();
             return new IntNode(std::stoi(result));
         case TrueKeywordToken:
             match(TrueKeywordToken, "true");
@@ -162,11 +218,19 @@ ASTNode* Parser::parsePrimary(){
             match(RightParenthesisToken, ")");
             return tree;
         case IdentifierToken:
-            identifier = getCurrentToken().text;
+            identifier = getCurrentToken().getText();
+            std::cout << "Identifier: " << identifier << "\n";
             match(IdentifierToken, "identifier");
             //Add support for discerning function calls and variable names
             if (contains(scopeTreeStack.top(), identifier))
             {
+                if (getCurrentToken().getSyntaxType() == LeftParenthesisToken)
+                {
+                    match(LeftParenthesisToken, "(");
+                    match(RightParenthesisToken, ")");
+                    return new FunctionCallNode(identifier);
+                }
+                std::cout << "Making Variable Node\n";
                 return new VariableNode(scopeTreeStack.top()->getSymbolTable()[identifier], identifier);
             }
             else
@@ -185,16 +249,17 @@ ASTNode* Parser::parsePrimary(){
 /**
  * Construct an AST via precendence climbing parsing
  */
-ASTNode* Parser::parseExpression(int minimumPrecedence){
-    ASTNode *left = parsePrimary(), *right;
-    SyntaxType lookAhead = getCurrentToken().syntaxType;
-    
+ASTNode* Parser::parseExpression(int minimumPrecedence)
+{
+    ASTNode* left = parsePrimary(), * right;
+    SyntaxType lookAhead = getCurrentToken().getSyntaxType();
+
     while (isBinaryOperator(lookAhead) && getOperatorPrecedence(lookAhead) > minimumPrecedence)
     {
         getNextToken();
         right = parseExpression(getOperatorPrecedence(lookAhead));
         left = new BinOpNode(left, getOperatorType(lookAhead), right);
-        lookAhead = getCurrentToken().syntaxType;
+        lookAhead = getCurrentToken().getSyntaxType();
         if (lookAhead == RightParenthesisToken || lookAhead == SemicolonToken)
         {
             return left;
@@ -203,8 +268,9 @@ ASTNode* Parser::parseExpression(int minimumPrecedence){
     return left;
 };
 
-ASTNode* Parser::parseStatement(){
-    switch(getCurrentToken().syntaxType)
+ASTNode* Parser::parseStatement()
+{
+    switch (getCurrentToken().getSyntaxType())
     {
         case IfToken:
             return parseIfStatement();
@@ -218,49 +284,60 @@ ASTNode* Parser::parseStatement(){
             return parseVariableDeclarationStatement();
         case ReturnKeyword:
             return parseReturnStatement();
+        default:
+            return parseExpressionStatement();
     }
-    
     return nullptr;
 }
 
-ASTNode* Parser::parseCompoundStatement(){
+ASTNode* Parser::parseCompoundStatement()
+{
     match(LeftCurlyBraceToken, "{");
-    ScopeTreeNode *parent = scopeTreeStack.top(), *child = new ScopeTreeNode();
+    std::vector<ASTNode*> statements;
+
+    /**
+     * When we encounter a block statement, we push a new scope onto the stack,
+     * make it the child of the parent to resolve variables in nested scopes,
+     * and increment the scope variable.
+     */
+    ScopeTreeNode* parent = scopeTreeStack.top(), * child = new ScopeTreeNode();
     scopeTreeStack.push(child);
     parent->addChild(child);
-    std::cout << "Scope: " << scope << "\n";
-    std::vector<ASTNode*> statements; 
     scope++;
-    //While inside the compound staement
-    while (getCurrentToken().syntaxType != RightCurlyBraceToken)
-    {  
+
+    //While inside the compound statement
+    while (getCurrentToken().getSyntaxType() != RightCurlyBraceToken)
+    {
         //Add each statement to the statement list
         statements.push_back(parseStatement());
     }
     match(RightCurlyBraceToken, "}");
+
+    //When the scope ends, decrement the scope and pop the stack
     scope--;
     scopeTreeStack.pop();
     return new CompoundStatementNode(statements);
 }
 
-ASTNode *Parser::parseIfStatement(){
-    ASTNode *condition, *stmtBody, *elseBody = nullptr;
+ASTNode* Parser::parseIfStatement()
+{
+    ASTNode* condition, * stmtBody, * elseBody = nullptr;
     match(IfToken, "if");
     match(LeftParenthesisToken, "(");
     condition = parseExpression(0);
     match(RightParenthesisToken, ")");
     stmtBody = parseStatement();
-    if (getCurrentToken().syntaxType == ElseToken)
+    if (getCurrentToken().getSyntaxType() == ElseToken)
     {
         match(ElseToken, "else");
         elseBody = parseStatement();
     }
-
     return new IfStatementNode(condition, stmtBody, elseBody);
 }
 
-ASTNode* Parser::parsePrintStatement(){
-    ASTNode *contents = nullptr;
+ASTNode* Parser::parsePrintStatement()
+{
+    ASTNode* contents = nullptr;
     match(PrintToken, "print");
     match(LeftParenthesisToken, "(");
     contents = parseExpression(0);
@@ -269,13 +346,14 @@ ASTNode* Parser::parsePrintStatement(){
     return new PrintNode(contents);
 }
 
-ASTNode* Parser::parseVariableDeclarationStatement(){
-    ASTNode *rhs = nullptr;
+ASTNode* Parser::parseVariableDeclarationStatement()
+{
+    ASTNode* rhs = nullptr;
     std::string identifier;
     SyntaxToken token = getCurrentToken();
     bool isVarType = false;
     Type t;
-    switch(getCurrentToken().syntaxType)
+    switch (getCurrentToken().getSyntaxType())
     {
         case IntKeywordToken:
             match(IntKeywordToken, "int");
@@ -295,9 +373,9 @@ ASTNode* Parser::parseVariableDeclarationStatement(){
     }
     token = getCurrentToken();
     match(IdentifierToken, "an identifer");
-    identifier = token.text;
+    identifier = token.getText();
 
-    if (contains(scopeTreeStack.top(), identifier))
+    if (scopeTreeStack.top()->getSymbolTable()[identifier])
     {
         std::cerr << "Error: Variable \"" << identifier << "\" already exists.\n";
         exit(EXIT_FAILURE);
@@ -314,7 +392,7 @@ ASTNode* Parser::parseVariableDeclarationStatement(){
     }
     else
     {
-        if (token.syntaxType != EqualsToken)
+        if (token.getSyntaxType() != EqualsToken)
         {
             match(SemicolonToken, ";");
         }
@@ -325,24 +403,39 @@ ASTNode* Parser::parseVariableDeclarationStatement(){
             match(SemicolonToken, ";");
         }
     }
-    return new VariableDeclarationNode(new VariableNode(t, identifier), rhs);
+    return new VariableDeclarationNode(new VariableNode(t, identifier), rhs, identifier);
 }
 
-ASTNode* Parser::parseReturnStatement(){
-    ASTNode *toReturn;
+ASTNode* Parser::parseReturnStatement()
+{
+    ASTNode* toReturn;
     match(ReturnKeyword, "return");
     toReturn = parseExpression(0);
     match(SemicolonToken, ";");
     return new ReturnNode(toReturn);
 }
 
-ASTNode* Parser::parseFunctionDeclaration() 
+/**
+ * Parses a function declaration including any parameters.
+ */
+ASTNode* Parser::parseFunctionDeclaration()
 {
     Type returnType;
     ASTNode* body;
-    std::string identifier;
+    std::string functionIdentifier, parameterIdentifier;
     std::vector<VariableNode*> parameterList;
-    switch(getCurrentToken().syntaxType)
+
+    /**
+     * When declaring a function, the parameters are made children of the global scope,
+     * and the function body adds a new scope to the scope in which the parameters reside.
+     */
+    ScopeTreeNode* parent = scopeTreeStack.top(), * child = new ScopeTreeNode();
+    scopeTreeStack.push(child);
+    parent->addChild(child);
+    scope++;
+
+    //Determine the return type of the function
+    switch (getCurrentToken().getSyntaxType())
     {
         case IntKeywordToken:
             returnType = IntegerPrimitive;
@@ -353,24 +446,74 @@ ASTNode* Parser::parseFunctionDeclaration()
             match(BoolKeywordToken, "bool");
             break;
     }
-    if (getCurrentToken().syntaxType == IdentifierToken)
+
+    //Match and obtain the function identifier
+    if (getCurrentToken().getSyntaxType() == IdentifierToken)
     {
-        identifier = getCurrentToken().text;
-        scopeTreeStack.top()->addEntry(identifier, returnType);
+        functionIdentifier = getCurrentToken().getText();
+        scopeTreeStack.top()->addEntry(functionIdentifier, returnType);
     }
     match(IdentifierToken, "an identifier");
+
+    //Parse the function parameters (if any)
     match(LeftParenthesisToken, "(");
+    while (getCurrentToken().getSyntaxType() != RightParenthesisToken)
+    {
+        match(IntKeywordToken, "int");
+
+        /**
+         * Obtain the parameter identifier, add it to the current scope's symbol table,
+         * and add it to the function's argument list
+         */
+        parameterIdentifier = match(IdentifierToken, "an identifier").getText();
+        parameterList.push_back(new VariableNode(IntegerPrimitive, parameterIdentifier));
+        scopeTreeStack.top()->addEntry(parameterIdentifier, IntegerPrimitive);
+
+        /**
+         * If a comma is encountered, the next token cannot be a right semicolon
+         */
+        if (getCurrentToken().getSyntaxType() == CommaToken)
+        {
+            match(CommaToken, ",");
+            //Ensure that the next token is NOT a right parenthesis
+            if (getCurrentToken().getSyntaxType() == RightParenthesisToken)
+            {
+                std::cerr << "Error: Invalid function declaration syntax";
+                exit(EXIT_FAILURE);
+            }
+        }
+    }
     match(RightParenthesisToken, ")");
+
+    //Parse the function body
     body = parseCompoundStatement();
-    std::cout << identifier << "\n";
-    return new FunctionNode(identifier, returnType, parameterList, body);
+
+    /**
+     * At this point, the scope is returned to that of the function parameters,
+     * so we pop the stack and decrement the scope to return to the global scope for
+     * future function declarations
+     */
+    scopeTreeStack.pop();
+    scope--;
+    return new FunctionNode(functionIdentifier, returnType, parameterList, body);
 }
 
+ASTNode* Parser::parseExpressionStatement()
+{
+    ASTNode* expr = parseExpression(0);
+    match(SemicolonToken, ";");
+    return expr;
+}
+
+/**
+ * Parses the program from start to finish by parsing functions as well as
+ * global variable declarations.
+ */
 ASTNode* Parser::parseProgram()
 {
     std::vector<ASTNode*> units;
-    std::cout << getCurrentToken().syntaxType;
-    while (getCurrentToken().syntaxType == IntKeywordToken)
+    //While there are still tokens to be read in
+    while (getCurrentToken().getSyntaxType() != EOFToken)
     {
         units.push_back(parseFunctionDeclaration());
     }

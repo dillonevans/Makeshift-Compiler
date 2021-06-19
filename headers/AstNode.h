@@ -4,8 +4,7 @@
 class Visitor;
 class ASTNode
 {
-    public:
-    virtual void accept(Visitor &v) = 0;
-    ASTNode* contents;
+public:
+    virtual void accept(Visitor& v) = 0;
 };
 #endif

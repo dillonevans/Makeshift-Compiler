@@ -6,14 +6,14 @@
 
 class CompoundStatementNode : public ASTNode
 {
-    private:
+private:
     std::vector<ASTNode*> statements;
-    
-    public:
-    void accept(Visitor &v);
+
+public:
+    void accept(Visitor& v);
     std::vector<ASTNode*> getStatements();
     CompoundStatementNode(std::vector<ASTNode*> list);
-  
+
 };
 
 #endif

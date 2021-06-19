@@ -5,15 +5,15 @@
 
 class IfStatementNode : public ASTNode
 {
-    private:
-    ASTNode* condition, *ifStmtBody, *elseBody;
-    
-    public: 
-    IfStatementNode(ASTNode* condition, ASTNode *ifStmtBody, ASTNode *elseBody);
+private:
+    ASTNode* condition, * ifStmtBody, * elseBody;
+
+public:
+    IfStatementNode(ASTNode* condition, ASTNode* ifStmtBody, ASTNode* elseBody);
     ASTNode* getIfStmtBody();
     ASTNode* getCondition();
     ASTNode* getElseBody();
-    void accept(Visitor &v);
+    void accept(Visitor& v);
 
 };
 

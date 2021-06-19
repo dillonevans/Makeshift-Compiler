@@ -16,12 +16,9 @@ class Value
     {
         int intLiteral;
         bool boolLiteral;
-        double doubleLiteral;
-        std::string stringLiteral;
-
     } literals;
 
-    public:
+public:
     Value(int literal);
     Value(bool literal);
 };

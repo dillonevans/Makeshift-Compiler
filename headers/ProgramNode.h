@@ -6,11 +6,11 @@
 
 class ProgramNode : public ASTNode
 {
-    private:
+private:
     std::vector<ASTNode*> programUnits;
-    
-    public:
-    void accept(Visitor &v);
+
+public:
+    void accept(Visitor& v);
     std::vector<ASTNode*> getProgramUnits();
     ProgramNode(std::vector<ASTNode*> list);
 };

@@ -5,9 +5,9 @@
 
 class IntNode : public ASTNode
 {
-    public: 
+public:
     int value;
     IntNode(int value);
-    void accept(Visitor &v);
+    void accept(Visitor& v);
 };
 #endif

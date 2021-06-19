@@ -14,19 +14,19 @@
 #include "../headers/Value.h"
 #include <iostream>
 
-void TypeCheckingVisitor::visitBinOPNode(BinOpNode &node)
+void TypeCheckingVisitor::visitBinOPNode(BinOpNode* node)
 {
     Type t1, t2;
-    if (node.left){
-        node.left->accept(*this);
+    if (node->left) {
+        node->left->accept(*this);
         t1 = this->getType();
     }
-    if (node.right){
-        node.right->accept(*this);
+    if (node->right) {
+        node->right->accept(*this);
         t2 = this->getType();
     }
 
-    switch(node.op)
+    switch (node->op)
     {
         case AdditionOperator:
         case SubtractionOperator:
@@ -37,13 +37,13 @@ void TypeCheckingVisitor::visitBinOPNode(BinOpNode &node)
                 std::cout << "Invalid operand types";
                 exit(EXIT_FAILURE);
             }
-            if (t1 == IntegerPrimitive) 
+            if (t1 == IntegerPrimitive)
             {
-                if (t2 == t1) 
+                if (t2 == t1)
                 {
                     this->setType(IntegerPrimitive);
-                } 
-            } 
+                }
+            }
             break;
         case GreaterThanOperator:
         case LessThanOperator:
@@ -68,28 +68,27 @@ void TypeCheckingVisitor::visitBinOPNode(BinOpNode &node)
 
 };
 
-void TypeCheckingVisitor::visitIntNode(IntNode &node)
-{  
+void TypeCheckingVisitor::visitIntNode(IntNode* node)
+{
     this->setType(IntegerPrimitive);
     return;
 }
 
-void TypeCheckingVisitor::visitCompoundStatementNode(CompoundStatementNode &node)
+void TypeCheckingVisitor::visitCompoundStatementNode(CompoundStatementNode* node)
 {
-    for (auto statement : node.getStatements())
+    for (auto statement : node->getStatements())
     {
         statement->accept(*this);
     }
     return;
 }
 
-void TypeCheckingVisitor::visitIfStatementNode(IfStatementNode &node)
+void TypeCheckingVisitor::visitIfStatementNode(IfStatementNode* node)
 {
-    node.getCondition()->accept(*this);
-    node.getIfStmtBody()->accept(*this);
-    if (node.getElseBody()) {node.getElseBody()->accept(*this);}
+    node->getCondition()->accept(*this);
+    node->getIfStmtBody()->accept(*this);
+    if (node->getElseBody()) { node->getElseBody()->accept(*this); }
     return;
-    
 }
 
 void TypeCheckingVisitor::setType(Type type)
@@ -97,33 +96,34 @@ void TypeCheckingVisitor::setType(Type type)
     this->type = type;
 }
 
-Type TypeCheckingVisitor::getType() 
+Type TypeCheckingVisitor::getType()
 {
     return this->type;
 }
 
-void TypeCheckingVisitor::visitPrintNode(PrintNode &node)
+void TypeCheckingVisitor::visitPrintNode(PrintNode* node)
 {
-    node.contents->accept(*this);
+    node->contents->accept(*this);
     return;
 }
 
-void TypeCheckingVisitor::visitVariableNode(VariableNode &node)
+void TypeCheckingVisitor::visitVariableNode(VariableNode* node)
 {
-    this->setType(node.type);
+    this->setType(node->getType());
     return;
 }
 
-void TypeCheckingVisitor::visitVariableDeclarationNode(VariableDeclarationNode &node) 
+void TypeCheckingVisitor::visitVariableDeclarationNode(VariableDeclarationNode* node)
 {
     Type t1, t2;
-    node.varNode->accept(*this);
+    node->getVarNode()->accept(*this);
     t1 = this->getType();
-    node.rhs->accept(*this);
+    node->getRHS()->accept(*this);
     t2 = this->getType();
-    if (t1 == ImplicitVarType) 
+    if (t1 == ImplicitVarType)
     {
-        node.varNode->type = t2;
+        node->getVarNode()->setType(t2);
+        std::cout << "Result: " << (node->getVarNode()->getType() == BooleanPrimitive) << "\n";
         this->setType(t2);
     }
     else if (t1 == IntegerPrimitive)
@@ -146,15 +146,15 @@ void TypeCheckingVisitor::visitVariableDeclarationNode(VariableDeclarationNode &
     }
 }
 
-void TypeCheckingVisitor::visitBooleanLiteralNode(BooleanLiteralNode &node) 
+void TypeCheckingVisitor::visitBooleanLiteralNode(BooleanLiteralNode* node)
 {
     this->setType(BooleanPrimitive);
     return;
 }
 
-void TypeCheckingVisitor::visitReturnNode(ReturnNode &node)
+void TypeCheckingVisitor::visitReturnNode(ReturnNode* node)
 {
-    node.toReturn->accept(*this);
+    node->toReturn->accept(*this);
     Type returnType = this->getType();
     if (returnType != functionType)
     {
@@ -163,22 +163,22 @@ void TypeCheckingVisitor::visitReturnNode(ReturnNode &node)
     return;
 }
 
-void TypeCheckingVisitor::visitFunctionNode(FunctionNode &node)
+void TypeCheckingVisitor::visitFunctionNode(FunctionNode* node)
 {
-    functionType = node.getReturnType();
-    node.getFunctionBody()->accept(*this);
+    functionType = node->getReturnType();
+    node->getFunctionBody()->accept(*this);
     return;
 }
 
-void TypeCheckingVisitor::visitFunctionCallNode(FunctionCallNode &node)
+void TypeCheckingVisitor::visitFunctionCallNode(FunctionCallNode* node)
 {
 
 }
 
-void TypeCheckingVisitor::visitProgramNode(ProgramNode &node)
+void TypeCheckingVisitor::visitProgramNode(ProgramNode* node)
 {
-    for (auto x : node.getProgramUnits())
+    for (auto& programUnit : node->getProgramUnits())
     {
-        x->accept(*this);
+        programUnit->accept(*this);
     }
 }

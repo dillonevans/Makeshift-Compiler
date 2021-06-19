@@ -3,26 +3,27 @@
 
 #include "AstNode.h"
 
-enum OperatorType 
+enum OperatorType
 {
-    AdditionOperator, 
-    SubtractionOperator, 
-    MultiplicationOperator, 
+    AdditionOperator,
+    SubtractionOperator,
+    MultiplicationOperator,
     DivisionOperator,
     LessThanOperator,
     LessThanOrEqualToOperator,
     GreaterThanOperator,
     GreaterThanOrEqualToOperator,
     LogicalAndOperator,
-    LogicalOrOperator
+    LogicalOrOperator,
+    AssignmentOperator
 };
 class BinOpNode : public ASTNode
 {
-    public:
-    ASTNode *left, *right;
+public:
+    ASTNode* left, * right;
     OperatorType op;
-    BinOpNode(ASTNode *left, OperatorType op, ASTNode *right);
-    void accept(Visitor &v);
+    BinOpNode(ASTNode* left, OperatorType op, ASTNode* right);
+    void accept(Visitor& v);
 };
 
 #endif

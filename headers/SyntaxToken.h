@@ -1,13 +1,14 @@
 #ifndef SYNTAXTOKEN_H
 #define SYNTAXTOKEN_H
 #include <string>
-enum SyntaxType 
+enum SyntaxType
 {
-    AddToken, 
-    MinusToken, 
-    MultToken, 
-    DivideToken, 
+    AddToken,
+    MinusToken,
+    MultToken,
+    DivideToken,
     EqualsToken,
+    AssignmentToken,
     WhitespaceToken,
     EOFToken,
     IntegerLiteralToken,
@@ -35,14 +36,18 @@ enum SyntaxType
     LogicalAndToken,
     BitwiseOrToken,
     LogicalOrToken,
-    ReturnKeyword
+    ReturnKeyword,
+    CommaToken
 };
 
 class SyntaxToken
 {
-    public:
+    private:
     std::string text;
     SyntaxType syntaxType;
+    public:
+    std::string getText();
+    SyntaxType getSyntaxType();
     SyntaxToken(SyntaxType syntaxType, std::string text);
     SyntaxToken();
 };

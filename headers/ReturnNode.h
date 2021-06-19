@@ -6,9 +6,9 @@
 #include "FunctionNode.h"
 class ReturnNode : public ASTNode
 {
-    public: 
+public:
     ASTNode* toReturn;
-    ReturnNode(ASTNode *toReturn);
-    void accept(Visitor &v);
+    ReturnNode(ASTNode* toReturn);
+    void accept(Visitor& v);
 };
 #endif

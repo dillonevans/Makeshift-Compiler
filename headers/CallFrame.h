@@ -3,11 +3,10 @@
 #include <vector>
 class CallFrame
 {
-    private:
-    std::vector<int> locals;
+private:
 
-    public:
-    CallFrame();
-
+public:
+    int basePointerOffset;
+    CallFrame(int basePointerOffset);
 };
 #endif

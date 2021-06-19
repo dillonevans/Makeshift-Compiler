@@ -5,9 +5,11 @@
 #include <string>
 class FunctionCallNode : public ASTNode
 {
-    public: 
+private:
     std::string identifier;
+public:
+    std::string getIdentifier();
     FunctionCallNode(std::string identifier);
-    void accept(Visitor &v);
+    void accept(Visitor& v);
 };
 #endif

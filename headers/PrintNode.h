@@ -4,10 +4,10 @@
 
 class PrintNode : public ASTNode
 {
-    public:
-        void accept(Visitor &v);
-        ASTNode* contents;
-        PrintNode(ASTNode *contents);
+public:
+    void accept(Visitor& v);
+    ASTNode* contents;
+    PrintNode(ASTNode* contents);
 };
 
 #endif

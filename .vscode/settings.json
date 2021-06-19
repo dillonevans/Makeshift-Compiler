@@ -50,6 +50,7 @@
         "stack": "cpp",
         "xhash": "cpp",
         "cctype": "cpp",
-        "concepts": "cpp"
+        "concepts": "cpp",
+        "variant": "cpp"
     }
 }

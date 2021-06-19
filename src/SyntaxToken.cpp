@@ -7,4 +7,14 @@ SyntaxToken::SyntaxToken(SyntaxType syntaxType, std::string text)
     this->text = text;
 }
 
-SyntaxToken::SyntaxToken(){}
+SyntaxToken::SyntaxToken() {}
+
+std::string SyntaxToken::getText()
+{
+    return this->text;
+}
+
+SyntaxType SyntaxToken::getSyntaxType()
+{
+    return this->syntaxType;
+}

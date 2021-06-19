@@ -9,20 +9,22 @@
 #include "CompoundStatementNode.h"
 class FunctionNode : public ASTNode
 {
-    private:
+private:
     std::vector<VariableNode*> parameterList;
     ASTNode* functionBody;
     Type returnType;
     std::string functionName;
- 
-    public: 
+    int parameterCount;
+
+public:
     FunctionNode(Type returnType);
     FunctionNode(std::string functionName, Type returnType, std::vector<VariableNode*> parameterList, ASTNode* functionBody);
     ASTNode* getFunctionBody();
     std::vector<VariableNode*> getParameterList();
     Type getReturnType();
-    void accept(Visitor &v);
+    void accept(Visitor& v);
     std::string getFunctionName();
+    int getParameterCount();
 
 };
 

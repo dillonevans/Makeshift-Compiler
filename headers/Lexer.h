@@ -5,14 +5,14 @@
 #include <fstream>
 class Lexer
 {
-    private:
+private:
     int position = 0;
     std::string text;
     std::ifstream file;
     char getCurrentChar();
     void skipWhitespace();
 
-    public: 
+public:
     bool hasReachedEOF();
     void advance();
     SyntaxToken lex();

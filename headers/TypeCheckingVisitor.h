@@ -4,22 +4,22 @@
 #include "Value.h"
 class TypeCheckingVisitor : public Visitor
 {
-    private:
+private:
     Type type, functionType;
-    
-    public:
-    void visitBinOPNode(BinOpNode &node);
-    void visitIntNode(IntNode &node);
-    void visitCompoundStatementNode(CompoundStatementNode &node);
-    void visitIfStatementNode(IfStatementNode &node);
-    void visitPrintNode(PrintNode &node);
-    void visitVariableDeclarationNode(VariableDeclarationNode &node);
-    void visitBooleanLiteralNode(BooleanLiteralNode &node);
-    void visitVariableNode(VariableNode &node);
-    void visitFunctionNode(FunctionNode &node);
-    void visitReturnNode(ReturnNode &node);
-    void visitFunctionCallNode(FunctionCallNode &node);
-    void visitProgramNode(ProgramNode &node);
+
+public:
+    void visitBinOPNode(BinOpNode* node);
+    void visitIntNode(IntNode* node);
+    void visitCompoundStatementNode(CompoundStatementNode* node);
+    void visitIfStatementNode(IfStatementNode* node);
+    void visitPrintNode(PrintNode* node);
+    void visitVariableDeclarationNode(VariableDeclarationNode* node);
+    void visitBooleanLiteralNode(BooleanLiteralNode* node);
+    void visitVariableNode(VariableNode* node);
+    void visitFunctionNode(FunctionNode* node);
+    void visitReturnNode(ReturnNode* node);
+    void visitFunctionCallNode(FunctionCallNode* node);
+    void visitProgramNode(ProgramNode* node);
     void setType(Type type);
 
     Type getType();

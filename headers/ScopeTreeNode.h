@@ -6,17 +6,17 @@
 #include <list>
 class ScopeTreeNode
 {
-    private:
+private:
     ScopeTreeNode* parent = nullptr;
     std::list<ScopeTreeNode*> children;
     std::unordered_map<std::string, Type> symbolTable;
 
-    public:
+public:
     ScopeTreeNode* getParentNode();
     std::list<ScopeTreeNode*> getChildren();
     std::unordered_map<std::string, Type> getSymbolTable();
     void addEntry(std::string identifier, Type type);
-    void addChild(ScopeTreeNode *childNode);
-    void setParent(ScopeTreeNode *parent);
+    void addChild(ScopeTreeNode* childNode);
+    void setParent(ScopeTreeNode* parent);
 };
 #endif

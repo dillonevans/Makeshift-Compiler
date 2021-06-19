@@ -1,15 +1,18 @@
-#ifndef PRINT_VISITOR_H
-#define PRINT_VISITOR_H
+#ifndef EBCV_H
+#define EBCV_H
 #include "Visitor.h"
-#include "Value.h"
-#include <stack>
-#include <string>
-class PrintVisitor : public Visitor
+#include <vector>
+#include <unordered_map>
+#include "ByteCodeInstruction.h"
+#include "Local.h"
+class CompilerVisitor : public Visitor
 {
 private:
-    int indentation = 0;
-    bool isLeft = false;
-    void printIndent();
+    std::vector<ByteCodeInstruction> instructions;
+    std::vector<Local> locals;
+    std::unordered_map<std::string, int> functionAddressMap;
+    int labelCount = 0, scope = 0;
+    int resolveLocal(std::string identifier);
 
 public:
     void visitBinOPNode(BinOpNode* node);
@@ -24,6 +27,7 @@ public:
     void visitReturnNode(ReturnNode* node);
     void visitFunctionCallNode(FunctionCallNode* node);
     void visitProgramNode(ProgramNode* node);
+    std::vector<ByteCodeInstruction> getInstructions();
 };
 
 #endif

@@ -5,9 +5,9 @@
 
 class BooleanLiteralNode : public ASTNode
 {
-    public: 
+public:
     bool value;
     BooleanLiteralNode(bool value);
-    void accept(Visitor &v);
+    void accept(Visitor& v);
 };
 #endif

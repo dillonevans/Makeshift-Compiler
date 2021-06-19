@@ -2,13 +2,13 @@
 #include <iostream>
 #include <string>
 #include <iomanip>
-VM::VM(std::vector<ByteCodeInstruction> instructions) : instructions{instructions} {}
+VM::VM(std::vector<ByteCodeInstruction> instructions) : instructions{ instructions } {}
 
 void VM::dumpByteCode()
 {
     for (auto i : instructions)
     {
-        switch(i.getOpcode())
+        switch (i.getOpcode())
         {
             case ADD:
             case MULT:
@@ -20,24 +20,26 @@ void VM::dumpByteCode()
             case PRINT:
             case AND:
             case OR:
-                std::cout << "0x" << std::setfill('0') << std::setw(4) << std::hex << +i.getOpcode() << "\n";
+            case RETURN:
+                std::cout << "0x" << std::setfill('0') << std::setw(2) << std::hex << +i.getOpcode() << "\n";
                 break;
             case LOAD:
             case JF:
             case JUMP:
             case CALL:
-                std::cout << "0x" << std::setfill('0') << std::setw(4) << std::hex << +i.getOpcode() << "\t0x"  << std::setfill('0') << std::setw(4) << i.getConstant()<< "\n";
+            case LOAD_LOCAL:
+                std::cout << "0x" << std::setfill('0') << std::setw(2) << std::hex << +i.getOpcode() << "\t0x" << std::setfill('0') << std::setw(4) << i.getConstant() << "\n";
                 break;
         }
     }
-        std::cout << "\n";
+    std::cout << "\n";
 }
 
 std::string VM::disassembleInstruction(ByteCodeInstruction instruction)
 {
     uint8_t opcode = instruction.getOpcode();
     int constant = instruction.getConstant();
-    switch(opcode)
+    switch (opcode)
     {
         case ADD:
             return "ADD";
@@ -48,7 +50,7 @@ std::string VM::disassembleInstruction(ByteCodeInstruction instruction)
         case DIV:
             return "DIV";
         case JF:
-            return "JF\t" + std::to_string(constant);
+            return "JF\t\t" + std::to_string(constant);
         case POP:
             return "POP";
         case LT:
@@ -59,18 +61,20 @@ std::string VM::disassembleInstruction(ByteCodeInstruction instruction)
             return "AND";
         case OR:
             return "OR";
+        case RETURN:
+            return "RETURN";
         case LOAD:
-            return "LOAD\t" + std::to_string(constant);
+            return "LOAD\t\t" + std::to_string(constant);
         case JUMP:
-            return "JUMP\t" + std::to_string(constant);
+            return "JUMP\t\t" + std::to_string(constant);
         case PRINT:
-            return "PRINT\t";
+            return "PRINT\t\t";
         case LABEL:
             return "L" + std::to_string(constant);
         case CALL:
-            return "CALL\t" + std::to_string(constant);
-
-       
+            return "CALL\t\t" + std::to_string(constant);
+        case LOAD_LOCAL:
+            return "LOAD_LOCAL\t" + std::to_string(constant);
     }
     return "UNKNOWN";
 }
@@ -80,11 +84,11 @@ void VM::disassembleInstruction()
     for (int i = 0; i < instructions.size(); i++)
     {
         auto x = instructions[i];
-        std::cout << "Instruction " << std::dec << i << ":\t" << disassembleInstruction(x) << "\n";
+        std::cout << std::dec << i << ":\t" << disassembleInstruction(x) << "\n";
     }
 }
 
-void VM::retrieveOperands(int &a, int &b)
+void VM::retrieveOperands(int& a, int& b)
 {
     a = stack[stack.size() - 1];
     stack.pop_back();
@@ -97,42 +101,43 @@ void VM::run()
     int a = 0, b = 0;
     for (int ip = 0; ip < instructions.size(); ip++)
     {
-        //std::cout << "IP AT " << ip << "\n";
+
+        //std::cout << "IP: " << ip << ". Stack Size: " << stack.size() << ". \n";
         switch (instructions[ip].getOpcode())
         {
             case ADD:
-                retrieveOperands(a,b);
+                retrieveOperands(a, b);
                 stack.push_back(b + a);
                 break;
             case DIV:
-                retrieveOperands(a,b);
+                retrieveOperands(a, b);
                 stack.push_back(b / a);
                 break;
             case MULT:
-                retrieveOperands(a,b);
+                retrieveOperands(a, b);
                 stack.push_back(b * a);
                 break;
             case SUB:
-                retrieveOperands(a,b);
+                retrieveOperands(a, b);
                 stack.push_back(b - a);
                 break;
             case AND:
-                retrieveOperands(a,b);
+                retrieveOperands(a, b);
                 stack.push_back(b && a);
                 break;
-            case OR: 
-                retrieveOperands(a,b);
+            case OR:
+                retrieveOperands(a, b);
                 stack.push_back(b || a);
                 break;
             case LOAD:
                 stack.push_back(instructions[ip].getConstant());
                 break;
             case LT:
-                retrieveOperands(a,b);
+                retrieveOperands(a, b);
                 stack.push_back(b < a);
                 break;
             case GT:
-                retrieveOperands(a,b);
+                retrieveOperands(a, b);
                 stack.push_back(b > a);
                 break;
             case POP:
@@ -140,7 +145,10 @@ void VM::run()
                 break;
             case JF:
                 a = stack[stack.size() - 1];
-                if (!a) {ip = instructions[ip].getConstant() - 1;}
+                if (!a)
+                {
+                    ip = instructions[ip].getConstant() - 1;
+                }
                 break;
             case JUMP:
                 ip = instructions[ip].getConstant() - 1;
@@ -149,14 +157,25 @@ void VM::run()
                 a = stack[stack.size() - 1];
                 stack.pop_back();
                 std::cout << a << "\n";
+                break;
             case LABEL:
                 continue;
             case CALL:
-                callStack.push(CallFrame());
+                callStack.push(CallFrame(stack.size()));
+                this->currentFrame = &callStack.top();
                 ip = instructions[ip].getConstant() - 1;
                 break;
             case RETURN:
                 callStack.pop();
+                this->currentFrame = &callStack.top();
+                ip = stack[stack.size() - 1];
+                stack.pop_back();
+
+                break;
+            case LOAD_LOCAL:
+                // std::cout << "Stack size: " << stack.size() << "\n";
+                // std::cout << "TEST: " << this->currentFrame->basePointerOffset + instructions[ip].getConstant() << "\n";
+                stack.push_back(stack[this->currentFrame->basePointerOffset + instructions[ip].getConstant()]);
                 break;
             default:
                 break;

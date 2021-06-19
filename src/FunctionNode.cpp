@@ -1,12 +1,12 @@
 #include "../headers/FunctionNode.h"
 #include "../headers/Visitor.h"
 
-std::vector<VariableNode*> FunctionNode::getParameterList() 
+std::vector<VariableNode*> FunctionNode::getParameterList()
 {
     return this->parameterList;
 }
 
-Type FunctionNode::getReturnType() 
+Type FunctionNode::getReturnType()
 {
     return this->returnType;
 }
@@ -16,12 +16,12 @@ ASTNode* FunctionNode::getFunctionBody()
     return this->functionBody;
 }
 
-void FunctionNode::accept(Visitor &v) 
+void FunctionNode::accept(Visitor& v)
 {
-    v.visitFunctionNode(*this);
+    v.visitFunctionNode(this);
 }
 
-FunctionNode::FunctionNode(std::string functionName, Type returnType, std::vector<VariableNode*> parameterList, ASTNode* functionBody) 
+FunctionNode::FunctionNode(std::string functionName, Type returnType, std::vector<VariableNode*> parameterList, ASTNode* functionBody)
 {
     this->functionName = functionName;
     this->returnType = returnType;
@@ -29,11 +29,17 @@ FunctionNode::FunctionNode(std::string functionName, Type returnType, std::vecto
     this->functionBody = functionBody;
 }
 
-FunctionNode::FunctionNode(Type returnType) 
+FunctionNode::FunctionNode(Type returnType)
 {
     this->returnType = returnType;
 }
 
-std::string FunctionNode::getFunctionName(){
+std::string FunctionNode::getFunctionName()
+{
     return this->functionName;
+}
+
+int FunctionNode::getParameterCount()
+{
+    return this->parameterCount;
 }

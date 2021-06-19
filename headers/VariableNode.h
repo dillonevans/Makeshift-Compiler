@@ -6,10 +6,14 @@
 
 class VariableNode : public ASTNode
 {
-    public: 
-    Type type;
+private:
     std::string identifier;
+    Type type;
+public:
+    Type getType();
+    std::string getIdentifier();
+    void setType(Type type);
     VariableNode(Type type, std::string identifer);
-    void accept(Visitor &v);
+    void accept(Visitor& v);
 };
 #endif
