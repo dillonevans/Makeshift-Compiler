@@ -1,8 +1,9 @@
 #include "../headers/ScopeTreeNode.h"
 #include <iostream>
-void ScopeTreeNode::addEntry(std::string identifier, Type t)
+void ScopeTreeNode::addEntry(std::string identifier, Type t, VariableNode* node)
 {
-    this->symbolTable[identifier] = t;
+
+    this->symbolTable[identifier] = std::pair<Type, VariableNode*>(t, node);
 }
 
 void ScopeTreeNode::addChild(ScopeTreeNode* node)
@@ -16,7 +17,7 @@ std::list<ScopeTreeNode*> ScopeTreeNode::getChildren()
     return this->children;
 }
 
-std::unordered_map<std::string, Type> ScopeTreeNode::getSymbolTable()
+std::unordered_map <std::string, std::pair<Type, VariableNode*>> ScopeTreeNode::getSymbolTable()
 {
     return this->symbolTable;
 }
@@ -29,4 +30,9 @@ ScopeTreeNode* ScopeTreeNode::getParentNode()
 void ScopeTreeNode::setParent(ScopeTreeNode* parent)
 {
     this->parent = parent;
+}
+
+VariableNode* ScopeTreeNode::getVariableNode(std::string identifier)
+{
+    return this->symbolTable[identifier].second;
 }

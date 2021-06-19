@@ -43,6 +43,7 @@ public:
     ASTNode* parseProgram();
     ASTNode* parseExpressionStatement();
     ASTNode* parseWhileStatement();
+    VariableNode* resolve(std::string identifier, ScopeTreeNode* node);
 
     void printTokens();
 };

@@ -1,9 +1,13 @@
 int test(int a, int b)
 {
-    print(a + b);
+   
 }
-
 int main()
 {
-    
+    int a = 2;
+    {
+        bool a = true;
+        print(a);
+    }
+    print(a);
 }

@@ -19,6 +19,8 @@
 
 #include "../headers/ProgramNode.h"
 
+
+
 /**
  * Constructor
  */
@@ -231,7 +233,7 @@ ASTNode* Parser::parsePrimary()
                     match(RightParenthesisToken, ")");
                     return new FunctionCallNode(identifier);
                 }
-                return new VariableNode(scopeTreeStack.top()->getSymbolTable()[identifier], identifier);
+                return resolve(identifier, scopeTreeStack.top());
             }
             else
             {
@@ -370,6 +372,7 @@ ASTNode* Parser::parseVariableDeclarationStatement()
             break;
         case BoolKeywordToken:
             match(BoolKeywordToken, "bool");
+            t = BooleanPrimitive;
             break;
         default:
             t = ImplicitVarType;
@@ -385,12 +388,13 @@ ASTNode* Parser::parseVariableDeclarationStatement()
      * Rather than checking the parent scope, we check the local scope
      * so that we can implement variable shadowing
      */
-    if (scopeTreeStack.top()->getSymbolTable()[identifier])
+    if (scopeTreeStack.top()->getVariableNode(identifier))
     {
         std::cerr << "Error: Variable \"" << identifier << "\" already exists.\n";
         exit(EXIT_FAILURE);
     }
-    scopeTreeStack.top()->addEntry(identifier, t);
+
+    scopeTreeStack.top()->addEntry(identifier, t, new VariableNode(t, identifier));
     token = getCurrentToken();
 
     //Implicitly typed variables require an assignment so as to deduce the type
@@ -413,7 +417,7 @@ ASTNode* Parser::parseVariableDeclarationStatement()
             match(SemicolonToken, ";");
         }
     }
-    return new VariableDeclarationNode(new VariableNode(t, identifier), rhs, identifier);
+    return new VariableDeclarationNode(scopeTreeStack.top()->getVariableNode(identifier), rhs, identifier);
 }
 
 ASTNode* Parser::parseReturnStatement()
@@ -461,7 +465,7 @@ ASTNode* Parser::parseFunctionDeclaration()
     if (getCurrentToken().getSyntaxType() == IdentifierToken)
     {
         functionIdentifier = getCurrentToken().getText();
-        scopeTreeStack.top()->addEntry(functionIdentifier, returnType);
+        scopeTreeStack.top()->addEntry(functionIdentifier, returnType, nullptr);
     }
     match(IdentifierToken, "an identifier");
 
@@ -476,8 +480,9 @@ ASTNode* Parser::parseFunctionDeclaration()
          * and add it to the function's argument list
          */
         parameterIdentifier = match(IdentifierToken, "an identifier").getText();
-        parameterList.push_back(new VariableNode(IntegerPrimitive, parameterIdentifier));
-        scopeTreeStack.top()->addEntry(parameterIdentifier, IntegerPrimitive);
+        auto node = new VariableNode(IntegerPrimitive, parameterIdentifier);
+        parameterList.push_back(node);
+        scopeTreeStack.top()->addEntry(parameterIdentifier, IntegerPrimitive, node);
 
         /**
          * If a comma is encountered, the next token cannot be a right semicolon
@@ -527,6 +532,19 @@ ASTNode* Parser::parseWhileStatement()
     body = parseStatement();
     return new WhileNode(condition, body);
 
+}
+
+VariableNode* Parser::resolve(std::string identifier, ScopeTreeNode* node)
+{
+    if (!node->getSymbolTable()[identifier].second)
+    {
+        return resolve(identifier, node->getParentNode());
+    }
+    else
+    {
+        return node->getSymbolTable()[identifier].second;
+    }
+    return nullptr;
 }
 
 /**

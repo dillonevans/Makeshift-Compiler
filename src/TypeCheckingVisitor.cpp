@@ -128,6 +128,7 @@ void TypeCheckingVisitor::visitVariableDeclarationNode(VariableDeclarationNode* 
     }
     else if (t1 == IntegerPrimitive)
     {
+        std::cout << "HERE BITCH\n";
         if (t2 == BooleanPrimitive)
         {
             std::cerr << "Cannot initialize type int with type boolean";
