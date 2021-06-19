@@ -1,13 +1,7 @@
-int test(int a, int b)
-{
-   
-}
 int main()
 {
     int a = 2;
-    {
-        bool a = true;
-        print(a);
-    }
-    print(a);
+    int b = 3;
+    int c = a + b;
+    print(c);
 }

@@ -37,32 +37,6 @@ Parser::Parser(std::string text) : lexer{ text }
 };
 
 /**
- * Returns true if the identifier is contained within the current or
- * parent scope.
- */
-bool contains(ScopeTreeNode* node, std::string identifer)
-{
-    /*If there is no node, we've exhausted our search: return false*/
-    if (!node)
-    {
-        return false;
-    }
-
-    /**
-     * If the identifier is not found within the current scope,
-     * recursively search the parent scope.
-     */
-    if (node->getSymbolTable().find(identifer) == node->getSymbolTable().end())
-    {
-        return contains(node->getParentNode(), identifer);
-    }
-    else
-    {
-        return true;
-    }
-}
-
-/**
  * Returns true if the passed Syntax Type is a binary operator
  */
 bool Parser::isBinaryOperator(SyntaxType syntaxType)
@@ -204,6 +178,7 @@ ASTNode* Parser::parsePrimary()
     std::string result;
     ASTNode* tree;
     std::string identifier;
+    VariableNode* varNode;
     switch (getCurrentToken().getSyntaxType())
     {
         case IntegerLiteralToken:
@@ -224,8 +199,12 @@ ASTNode* Parser::parsePrimary()
             identifier = getCurrentToken().getText();
             match(IdentifierToken, "identifier");
 
-            //Add support for discerning function calls and variable names
-            if (contains(scopeTreeStack.top(), identifier))
+            /**
+             * Attempt to find the local variable node corresponding to the given identifier.
+             * If it is found, return the node. Otherwise, report an error
+             */
+            varNode = resolve(identifier, scopeTreeStack.top());
+            if (varNode)
             {
                 if (getCurrentToken().getSyntaxType() == LeftParenthesisToken)
                 {
@@ -233,7 +212,7 @@ ASTNode* Parser::parsePrimary()
                     match(RightParenthesisToken, ")");
                     return new FunctionCallNode(identifier);
                 }
-                return resolve(identifier, scopeTreeStack.top());
+                return varNode;
             }
             else
             {
@@ -393,7 +372,7 @@ ASTNode* Parser::parseVariableDeclarationStatement()
         std::cerr << "Error: Variable \"" << identifier << "\" already exists.\n";
         exit(EXIT_FAILURE);
     }
-
+    //Add the local variable to the current scope
     scopeTreeStack.top()->addEntry(identifier, t, new VariableNode(t, identifier));
     token = getCurrentToken();
 
@@ -459,6 +438,9 @@ ASTNode* Parser::parseFunctionDeclaration()
             returnType = BooleanPrimitive;
             match(BoolKeywordToken, "bool");
             break;
+        case VarKeywordToken:
+            std::cerr << "Error: \"var\" is not valid for function arguments.\n";
+            exit(EXIT_FAILURE);
     }
 
     //Match and obtain the function identifier
@@ -534,17 +516,21 @@ ASTNode* Parser::parseWhileStatement()
 
 }
 
+ASTNode* Parser::parseAssignmentStatement()
+{
+    ASTNode* rhs;
+    match(IdentifierToken, "an identifier");
+    match(AssignmentToken, "=");
+    rhs = parseExpressionStatement();
+    //Implement later:
+    return nullptr;
+}
+
 VariableNode* Parser::resolve(std::string identifier, ScopeTreeNode* node)
 {
-    if (!node->getSymbolTable()[identifier].second)
-    {
-        return resolve(identifier, node->getParentNode());
-    }
-    else
-    {
-        return node->getSymbolTable()[identifier].second;
-    }
-    return nullptr;
+    auto variableNode = node->getVariableNode(identifier);
+    if (!variableNode) { return resolve(identifier, node->getParentNode()); }
+    else { return variableNode; }
 }
 
 /**

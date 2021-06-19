@@ -17,21 +17,19 @@ class Parser
 private:
     std::vector<SyntaxToken> tokens;
     Lexer lexer;
+    int scope = 0;
+    int position = 0;
+    int getOperatorPrecedence(SyntaxType op);
+    bool isBinaryOperator(SyntaxType syntaxType);
+    std::stack<ScopeTreeNode*> scopeTreeStack;
+
     SyntaxToken peek(int offset);
     SyntaxToken getCurrentToken();
     SyntaxToken getNextToken();
     SyntaxToken match(SyntaxType expected, std::string text);
-    ASTNode* parsePrimary();
-
     OperatorType getOperatorType(SyntaxType op);
-    bool isBinaryOperator(SyntaxType syntaxType);
-    int getOperatorPrecedence(SyntaxType op);
-    int position = 0;
-    int scope = 0;
-    std::stack<ScopeTreeNode*> scopeTreeStack;
 
-public:
-    Parser(std::string text);
+    ASTNode* parsePrimary();
     ASTNode* parseExpression(int minimumPrecedence);
     ASTNode* parseCompoundStatement();
     ASTNode* parseStatement();
@@ -40,11 +38,15 @@ public:
     ASTNode* parseVariableDeclarationStatement();
     ASTNode* parseReturnStatement();
     ASTNode* parseFunctionDeclaration();
-    ASTNode* parseProgram();
     ASTNode* parseExpressionStatement();
     ASTNode* parseWhileStatement();
+    ASTNode* parseAssignmentStatement();
+
     VariableNode* resolve(std::string identifier, ScopeTreeNode* node);
 
+public:
+    Parser(std::string text);
+    ASTNode* parseProgram();
     void printTokens();
 };
 #endif
