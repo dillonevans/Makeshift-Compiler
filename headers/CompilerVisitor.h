@@ -27,6 +27,7 @@ public:
     void visitReturnNode(ReturnNode* node);
     void visitFunctionCallNode(FunctionCallNode* node);
     void visitProgramNode(ProgramNode* node);
+    void visitWhileNode(WhileNode* node);
     std::vector<ByteCodeInstruction> getInstructions();
 };
 

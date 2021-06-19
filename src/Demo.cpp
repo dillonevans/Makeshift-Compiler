@@ -23,9 +23,9 @@ int main()
 
     AST->accept(v);
     VM virtualMachine(v.getInstructions());
-    // virtualMachine.dumpByteCode();
+    virtualMachine.dumpByteCode();
     virtualMachine.disassembleInstruction();
     virtualMachine.run();
-    //AST->accept(p);
+    AST->accept(p);
     return 0;
 }

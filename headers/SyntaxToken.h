@@ -37,15 +37,16 @@ enum SyntaxType
     BitwiseOrToken,
     LogicalOrToken,
     ReturnKeyword,
+    WhileKeywordToken,
     CommaToken
 };
 
 class SyntaxToken
 {
-    private:
+private:
     std::string text;
     SyntaxType syntaxType;
-    public:
+public:
     std::string getText();
     SyntaxType getSyntaxType();
     SyntaxToken(SyntaxType syntaxType, std::string text);

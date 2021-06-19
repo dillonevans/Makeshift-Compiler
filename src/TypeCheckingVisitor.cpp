@@ -182,3 +182,8 @@ void TypeCheckingVisitor::visitProgramNode(ProgramNode* node)
         programUnit->accept(*this);
     }
 }
+
+void TypeCheckingVisitor::visitWhileNode(WhileNode* node)
+{
+
+}

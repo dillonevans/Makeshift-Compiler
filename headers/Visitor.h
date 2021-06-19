@@ -6,7 +6,6 @@ class BinOpNode;
 class CompoundStatementNode;
 class IfStatementNode;
 class FunctionNode;
-
 class PrintNode;
 class VariableDeclarationNode;
 class BooleanLiteralNode;
@@ -14,6 +13,8 @@ class VariableNode;
 class ReturnNode;
 class FunctionCallNode;
 class ProgramNode;
+class WhileNode;
+
 class Visitor
 {
 public:
@@ -29,6 +30,7 @@ public:
     virtual void visitReturnNode(ReturnNode* node) = 0;
     virtual void visitFunctionCallNode(FunctionCallNode* node) = 0;
     virtual void visitProgramNode(ProgramNode* node) = 0;
+    virtual void visitWhileNode(WhileNode* node) = 0;
 
 
 };

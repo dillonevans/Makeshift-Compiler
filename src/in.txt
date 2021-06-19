@@ -5,26 +5,5 @@ int test(int a, int b)
 
 int main()
 {
-    int x = 2;
-    int y = 3;
-    {
-        int x = 4;
-        int y = 5;
-        print(x+y);
-        {
-            int x = 6;
-            int y = 7;
-            print(x+y);
-            {
-                int x = 8;
-                int y = 9;
-                print(x+y);
-                {
-                    print(x);
-                    print(y);
-                }
-            }
-        }
-    }
-    print(x+y);
+    
 }

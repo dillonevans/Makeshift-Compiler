@@ -107,6 +107,10 @@ SyntaxToken Lexer::lex()
                     return SyntaxToken(VarKeywordToken, lexeme);
                 }
                 break;
+            case 'w':
+                if (lexeme == "while") {
+                    return SyntaxToken(WhileKeywordToken, lexeme);
+                }
         }
         return SyntaxToken(IdentifierToken, lexeme);
     }

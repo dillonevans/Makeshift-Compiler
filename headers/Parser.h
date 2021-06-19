@@ -42,6 +42,7 @@ public:
     ASTNode* parseFunctionDeclaration();
     ASTNode* parseProgram();
     ASTNode* parseExpressionStatement();
+    ASTNode* parseWhileStatement();
 
     void printTokens();
 };

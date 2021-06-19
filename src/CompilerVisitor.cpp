@@ -13,6 +13,7 @@
 #include "../headers/ReturnNode.h"
 #include "../headers/ProgramNode.h"
 #include "../headers/Local.h"
+#include "../headers/WhileNode.h"
 #include <iomanip>
 #include <iostream>
 
@@ -75,13 +76,13 @@ void CompilerVisitor::visitCompoundStatementNode(CompoundStatementNode* node)
 
 void CompilerVisitor::visitIfStatementNode(IfStatementNode* node)
 {
-    int falsePointer = 0xff, thenJump = 0, elseJump = 0;
+    int falsePointer = 0xff, thenJumpIndex = 0, elseJumpIndex = 0;
 
     //Generate the Bytecode for the condition of the if statement
     node->getCondition()->accept(*this);
 
     //Save the instruction number to modify the jump later
-    thenJump = instructions.size();
+    thenJumpIndex = instructions.size();
 
     //If the instructions condition was false, jump ahead to the else clause if any
     instructions.push_back(ByteCodeInstruction(JF, falsePointer));
@@ -91,10 +92,10 @@ void CompilerVisitor::visitIfStatementNode(IfStatementNode* node)
     node->getIfStmtBody()->accept(*this);
 
     //Update the first jump instruction
-    instructions[thenJump].setConstant(instructions.size() + 1);
+    instructions[thenJumpIndex].setConstant(instructions.size() + 1);
 
     //If the condition was true, the VM needs to jump outside of the else clause
-    elseJump = instructions.size();
+    elseJumpIndex = instructions.size();
     instructions.push_back(ByteCodeInstruction(JUMP, falsePointer));
 
     /*If the condition was false, the VM jumps here and executes the else clause so we pop the stack
@@ -111,7 +112,7 @@ void CompilerVisitor::visitIfStatementNode(IfStatementNode* node)
     /**
      * Regardless if there is an else statement, we jump to the end of the if
      */
-    instructions[elseJump].setConstant(instructions.size());
+    instructions[elseJumpIndex].setConstant(instructions.size());
     instructions.push_back(ByteCodeInstruction(LABEL, labelCount++));
 }
 
@@ -128,17 +129,14 @@ void CompilerVisitor::visitPrintNode(PrintNode* node)
 
 void CompilerVisitor::visitVariableDeclarationNode(VariableDeclarationNode* node)
 {
-    std::cout << "identifier:" << node->getIdentifier() << "\n";
     locals.push_back(Local(node->getIdentifier(), scope));
     node->getRHS()->accept(*this);
 }
 
 int CompilerVisitor::resolveLocal(std::string identifier)
 {
-    std::cout << "Locals Size: " << locals.size() << "\n";
     for (int i = locals.size() - 1; i >= 0; i--)
     {
-        std::cout << "Identifier: " << locals[i].getIdentifier() << "\n";
         if (identifier == locals[i].getIdentifier())
         {
             return i;
@@ -150,7 +148,6 @@ int CompilerVisitor::resolveLocal(std::string identifier)
 void CompilerVisitor::visitVariableNode(VariableNode* node)
 {
     int arg = resolveLocal(node->getIdentifier());
-    std::cout << arg << "\n";
     instructions.push_back(ByteCodeInstruction(LOAD_LOCAL, arg));
     return;
 }
@@ -169,22 +166,32 @@ void CompilerVisitor::visitReturnNode(ReturnNode* node)
 
 void CompilerVisitor::visitFunctionNode(FunctionNode* node)
 {
-    instructions.push_back(ByteCodeInstruction(LABEL, labelCount++));
     scope++;
-    std::cout << node->getFunctionName() << "\n";
+    instructions.push_back(ByteCodeInstruction(LABEL, labelCount++));
     functionAddressMap[node->getFunctionName()] = instructions.size() - 1;
+
+    /**
+     * Add every parameter to the local array so that they can be accessed
+     * relative to their stack location
+     */
     for (const auto& parameter : node->getParameterList())
     {
         locals.push_back(Local(parameter->getIdentifier(), scope));
     }
+
+    //Generate the Bytecode for the body of the function
     node->getFunctionBody()->accept(*this);
+
+    //After the function ends, pop all of the local variables off the stack and decrement scope
     while (locals.size() > 0)
     {
         instructions.push_back(ByteCodeInstruction(POP));
         locals.pop_back();
     }
-    instructions.push_back(ByteCodeInstruction(RETURN));
     scope--;
+
+    //After the function ends, return. 
+    instructions.push_back(ByteCodeInstruction(RETURN));
     return;
 }
 
@@ -197,7 +204,6 @@ void CompilerVisitor::visitFunctionCallNode(FunctionCallNode* node)
 
 void CompilerVisitor::visitProgramNode(ProgramNode* node)
 {
-
     //This makes the call to main, the address gets recalculated afterwards
     instructions.push_back(ByteCodeInstruction(LOAD, 0xff));
     instructions.push_back(ByteCodeInstruction(CALL, 0xff));
@@ -207,4 +213,36 @@ void CompilerVisitor::visitProgramNode(ProgramNode* node)
     }
     //After the bytecode instructions have been generated, update the address of main
     instructions[1].setConstant(functionAddressMap["main"]);
+}
+
+void CompilerVisitor::visitWhileNode(WhileNode* node)
+{
+    int falsePointer = 0xff, beginWhileIndex = 0, endWhileIndex = 0;
+
+    //Save the instruction number to modify the jump later
+    beginWhileIndex = instructions.size();
+
+    //This is the start of the while loop
+    instructions.push_back(ByteCodeInstruction(LABEL, labelCount++));
+
+    //Generate Bytecode for the condition
+    node->getCondition()->accept(*this);
+
+    //If the condition was false, jump to the end of the while loop
+    endWhileIndex = instructions.size();
+    instructions.push_back(ByteCodeInstruction(JF, falsePointer));
+
+    //Generate Bytecode for the body
+    node->getBody()->accept(*this);
+    instructions.push_back(ByteCodeInstruction(JUMP, beginWhileIndex));
+
+    /**
+     * This label marks the end of the while loop. When the while
+     * condition is false, the instruction pointer is moved here
+     * and the stack is popped, for it contains the result of the
+     * condition.
+     */
+    instructions[endWhileIndex].setConstant(instructions.size());
+    instructions.push_back(ByteCodeInstruction(LABEL, labelCount++));
+    instructions.push_back(ByteCodeInstruction(POP));
 }

@@ -127,3 +127,8 @@ void PrintVisitor::visitProgramNode(ProgramNode* node)
         programUnit->accept(*this);
     }
 }
+
+void PrintVisitor::visitWhileNode(WhileNode* node)
+{
+
+}

@@ -15,11 +15,12 @@
 #include "../headers/TypeCheckingVisitor.h"
 #include "../headers/FunctionNode.h"
 #include "../headers/FunctionCallNode.h"
+#include "../headers/WhileNode.h"
 
 #include "../headers/ProgramNode.h"
 
 /**
- *Constructor for the Parser
+ * Constructor
  */
 Parser::Parser(std::string text) : lexer{ text }
 {
@@ -219,8 +220,8 @@ ASTNode* Parser::parsePrimary()
             return tree;
         case IdentifierToken:
             identifier = getCurrentToken().getText();
-            std::cout << "Identifier: " << identifier << "\n";
             match(IdentifierToken, "identifier");
+
             //Add support for discerning function calls and variable names
             if (contains(scopeTreeStack.top(), identifier))
             {
@@ -230,7 +231,6 @@ ASTNode* Parser::parsePrimary()
                     match(RightParenthesisToken, ")");
                     return new FunctionCallNode(identifier);
                 }
-                std::cout << "Making Variable Node\n";
                 return new VariableNode(scopeTreeStack.top()->getSymbolTable()[identifier], identifier);
             }
             else
@@ -284,6 +284,8 @@ ASTNode* Parser::parseStatement()
             return parseVariableDeclarationStatement();
         case ReturnKeyword:
             return parseReturnStatement();
+        case WhileKeywordToken:
+            return parseWhileStatement();
         default:
             return parseExpressionStatement();
     }
@@ -322,10 +324,14 @@ ASTNode* Parser::parseCompoundStatement()
 ASTNode* Parser::parseIfStatement()
 {
     ASTNode* condition, * stmtBody, * elseBody = nullptr;
+
+    //Parse the "if (condition)" portion
     match(IfToken, "if");
     match(LeftParenthesisToken, "(");
     condition = parseExpression(0);
     match(RightParenthesisToken, ")");
+
+    //Parse the "then" portion of the if statement
     stmtBody = parseStatement();
     if (getCurrentToken().getSyntaxType() == ElseToken)
     {
@@ -375,6 +381,10 @@ ASTNode* Parser::parseVariableDeclarationStatement()
     match(IdentifierToken, "an identifer");
     identifier = token.getText();
 
+    /**
+     * Rather than checking the parent scope, we check the local scope
+     * so that we can implement variable shadowing
+     */
     if (scopeTreeStack.top()->getSymbolTable()[identifier])
     {
         std::cerr << "Error: Variable \"" << identifier << "\" already exists.\n";
@@ -503,6 +513,20 @@ ASTNode* Parser::parseExpressionStatement()
     ASTNode* expr = parseExpression(0);
     match(SemicolonToken, ";");
     return expr;
+}
+
+ASTNode* Parser::parseWhileStatement()
+{
+    ASTNode* condition, * body;
+
+    //Parse the "while (condition)" portion
+    match(WhileKeywordToken, "while");
+    match(LeftParenthesisToken, "(");
+    condition = parseExpression(0);
+    match(RightParenthesisToken, ")");
+    body = parseStatement();
+    return new WhileNode(condition, body);
+
 }
 
 /**
