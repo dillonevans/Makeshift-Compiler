@@ -11,11 +11,14 @@
 #include "../headers/VM.h"
 #include "../headers/TypeCheckingVisitor.h"
 #include "../headers/PrintVisitor.h"
+#include "../headers/x86Visitor.h"
+
 
 using reg = int;
 int main()
 {
     CompilerVisitor v;
+    x86Visitor compiler;
     TypeCheckingVisitor typeChecker;
     PrintVisitor p;
     Parser parser("in.txt");
@@ -25,11 +28,13 @@ int main()
     ASTNode* AST = parser.parseProgram();
     AST->accept(typeChecker);
 
-    AST->accept(v);
-    VM virtualMachine(v.getInstructions());
-    //virtualMachine.dumpByteCode();
-    virtualMachine.disassembleInstruction();
-    virtualMachine.run();
+    // AST->accept(v);
+    // VM virtualMachine(v.getInstructions());
+    // //virtualMachine.dumpByteCode();
+    // virtualMachine.disassembleInstruction();
+    // virtualMachine.run();
     //AST->accept(p);
+
+    AST->accept(compiler);
     return 0;
 }

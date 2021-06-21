@@ -1,16 +1,4 @@
-int test()
-{
-    var x = 1;
-    var factorial = 1;
-    while (x < 14)
-    {
-        factorial = factorial * x;
-        x = x + 1;
-        print(factorial);
-    }
-}
-
 int main()
 {
-  
+    print(2+2+2+2+2);
 }

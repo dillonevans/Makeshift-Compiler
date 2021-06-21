@@ -430,9 +430,6 @@ ASTNode* Parser::parseFunctionDeclaration()
     std::string functionIdentifier, parameterIdentifier;
     std::vector<VariableNode*> parameterList;
 
-
-
-
     //Determine the return type of the function
     switch (getCurrentToken().getSyntaxType())
     {

@@ -24,6 +24,7 @@ private:
     int allocateRegister();
     int allocateLabel();
     void freeRegister(int reg);
+    reg allocatedRegister;
 
 public:
     void visitBinOPNode(BinOpNode* node);
