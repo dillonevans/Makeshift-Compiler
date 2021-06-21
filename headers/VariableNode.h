@@ -9,11 +9,13 @@ class VariableNode : public ASTNode
 private:
     std::string identifier;
     Type type;
+    bool isLocal;
+
 public:
     Type getType();
     std::string getIdentifier();
     void setType(Type type);
-    VariableNode(Type type, std::string identifer);
+    VariableNode(Type type, std::string identifer, bool isLocal);
     void accept(Visitor& v);
 };
 #endif

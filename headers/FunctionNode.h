@@ -10,10 +10,6 @@
 class FunctionNode : public ASTNode
 {
 private:
-    std::vector<VariableNode*> parameterList;
-    ASTNode* functionBody;
-    Type returnType;
-    std::string functionName;
     int parameterCount;
 
 public:
@@ -25,6 +21,10 @@ public:
     void accept(Visitor& v);
     std::string getFunctionName();
     int getParameterCount();
+    std::vector<VariableNode*> parameterList;
+    ASTNode* functionBody;
+    Type returnType;
+    std::string functionName;
 
 };
 

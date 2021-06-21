@@ -11,16 +11,16 @@ class VariableDeclarationNode : public ASTNode
 private:
     ASTNode* rhs;
     std::string identifier;
-    VariableNode* varNode;
+    ASTNode* varNode;
     Type type;
 
 public:
     ASTNode* getRHS();
     Type getType();
     std::string getIdentifier();
-    VariableNode* getVarNode();
+    ASTNode* getVarNode();
 
-    VariableDeclarationNode(VariableNode* varNode, ASTNode* rhs, std::string identifier);
+    VariableDeclarationNode(ASTNode* varNode, ASTNode* rhs, std::string identifier);
     void accept(Visitor& v);
 };
 

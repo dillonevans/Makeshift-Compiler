@@ -1,9 +1,9 @@
 #include "../headers/ScopeTreeNode.h"
 #include <iostream>
-void ScopeTreeNode::addEntry(std::string identifier, Type t, VariableNode* node)
-{
 
-    this->symbolTable[identifier] = std::pair<Type, VariableNode*>(t, node);
+void ScopeTreeNode::addEntry(std::string identifier, Type t, ASTNode* node, bool isFunction)
+{
+    this->symbolTable[identifier] = std::tuple<Type, ASTNode*, bool>(t, node, isFunction);
 }
 
 void ScopeTreeNode::addChild(ScopeTreeNode* node)
@@ -17,7 +17,7 @@ std::list<ScopeTreeNode*> ScopeTreeNode::getChildren()
     return this->children;
 }
 
-std::unordered_map <std::string, std::pair<Type, VariableNode*>> ScopeTreeNode::getSymbolTable()
+std::unordered_map <std::string, std::tuple<Type, ASTNode*, bool>> ScopeTreeNode::getSymbolTable()
 {
     return this->symbolTable;
 }
@@ -32,7 +32,12 @@ void ScopeTreeNode::setParent(ScopeTreeNode* parent)
     this->parent = parent;
 }
 
-VariableNode* ScopeTreeNode::getVariableNode(std::string identifier)
+ASTNode* ScopeTreeNode::getNode(std::string identifier)
 {
-    return this->symbolTable[identifier].second;
+    return std::get<1>(this->symbolTable[identifier]);
+}
+
+bool ScopeTreeNode::isFunction(std::string identifier)
+{
+    return std::get<2>(this->symbolTable[identifier]);
 }

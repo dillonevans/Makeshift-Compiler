@@ -6,6 +6,7 @@ class TypeCheckingVisitor : public Visitor
 {
 private:
     Type type, functionType;
+    bool isTypeInference = false;
 
 public:
     void visitBinOPNode(BinOpNode* node);
@@ -21,6 +22,7 @@ public:
     void visitFunctionCallNode(FunctionCallNode* node);
     void visitProgramNode(ProgramNode* node);
     void visitWhileNode(WhileNode* node);
+    void visitAssignmentNode(AssignmentNode* node);
     void setType(Type type);
 
     Type getType();

@@ -109,7 +109,14 @@ void TypeCheckingVisitor::visitPrintNode(PrintNode* node)
 
 void TypeCheckingVisitor::visitVariableNode(VariableNode* node)
 {
-    this->setType(node->getType());
+    if (isTypeInference)
+    {
+        node->setType(type);
+    }
+    else
+    {
+        this->setType(node->getType());
+    }
     return;
 }
 
@@ -122,13 +129,14 @@ void TypeCheckingVisitor::visitVariableDeclarationNode(VariableDeclarationNode* 
     t2 = this->getType();
     if (t1 == ImplicitVarType)
     {
-        node->getVarNode()->setType(t2);
-        std::cout << "Result: " << (node->getVarNode()->getType() == BooleanPrimitive) << "\n";
+        isTypeInference = true;
+        type = t2;
+        node->getVarNode()->accept(*this);
         this->setType(t2);
+        isTypeInference = false;
     }
     else if (t1 == IntegerPrimitive)
     {
-        std::cout << "HERE BITCH\n";
         if (t2 == BooleanPrimitive)
         {
             std::cerr << "Cannot initialize type int with type boolean";
@@ -159,7 +167,7 @@ void TypeCheckingVisitor::visitReturnNode(ReturnNode* node)
     Type returnType = this->getType();
     if (returnType != functionType)
     {
-        std::cerr << "Function  must return specified type\n";
+        std::cerr << "Function must return specified type\n";
     }
     return;
 }
@@ -185,6 +193,11 @@ void TypeCheckingVisitor::visitProgramNode(ProgramNode* node)
 }
 
 void TypeCheckingVisitor::visitWhileNode(WhileNode* node)
+{
+
+}
+
+void TypeCheckingVisitor::visitAssignmentNode(AssignmentNode* node)
 {
 
 }

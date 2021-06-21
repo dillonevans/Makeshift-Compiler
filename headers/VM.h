@@ -10,9 +10,10 @@ private:
     std::string disassembleInstruction(ByteCodeInstruction instruction);
     std::stack<CallFrame> callStack;
     CallFrame* currentFrame;
-public:
     std::vector<ByteCodeInstruction> instructions;
     std::vector<int> stack;
+
+public:
     VM(std::vector<ByteCodeInstruction> instructions);
     void run();
     void retrieveOperands(int& a, int& b);

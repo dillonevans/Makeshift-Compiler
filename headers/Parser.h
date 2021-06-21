@@ -42,7 +42,7 @@ private:
     ASTNode* parseWhileStatement();
     ASTNode* parseAssignmentStatement();
 
-    VariableNode* resolve(std::string identifier, ScopeTreeNode* node);
+    ASTNode* resolve(std::string identifier, ScopeTreeNode* node);
 
 public:
     Parser(std::string text);

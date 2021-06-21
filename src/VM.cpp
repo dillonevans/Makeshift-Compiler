@@ -28,6 +28,7 @@ void VM::dumpByteCode()
             case JUMP:
             case CALL:
             case LOAD_LOCAL:
+            case SET_LOCAL:
                 std::cout << "0x" << std::setfill('0') << std::setw(2) << std::hex << +i.getOpcode() << "\t0x" << std::setfill('0') << std::setw(4) << i.getConstant() << "\n";
                 break;
         }
@@ -75,6 +76,9 @@ std::string VM::disassembleInstruction(ByteCodeInstruction instruction)
             return "CALL\t\t" + std::to_string(constant);
         case LOAD_LOCAL:
             return "LOAD_LOCAL\t" + std::to_string(constant);
+        case SET_LOCAL:
+            return "SET_LOCAL\t" + std::to_string(constant);
+
     }
     return "UNKNOWN";
 }
@@ -176,6 +180,10 @@ void VM::run()
                 // std::cout << "Stack size: " << stack.size() << "\n";
                 // std::cout << "TEST: " << this->currentFrame->basePointerOffset + instructions[ip].getConstant() << "\n";
                 stack.push_back(stack[this->currentFrame->basePointerOffset + instructions[ip].getConstant()]);
+                break;
+            case SET_LOCAL:
+                stack[this->currentFrame->basePointerOffset + instructions[ip].getConstant()] = stack.back();
+                stack.pop_back();
                 break;
             default:
                 break;

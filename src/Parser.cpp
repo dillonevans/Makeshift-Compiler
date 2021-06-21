@@ -16,7 +16,7 @@
 #include "../headers/FunctionNode.h"
 #include "../headers/FunctionCallNode.h"
 #include "../headers/WhileNode.h"
-
+#include "../headers/AssignmentNode.h"
 #include "../headers/ProgramNode.h"
 
 
@@ -163,7 +163,7 @@ OperatorType Parser::getOperatorType(SyntaxType op)
             return LogicalAndOperator;
         case LogicalOrToken:
             return LogicalOrOperator;
-        case EqualsToken:
+        case AssignmentToken:
             return AssignmentOperator;
         default:
             exit(EXIT_FAILURE);
@@ -178,7 +178,7 @@ ASTNode* Parser::parsePrimary()
     std::string result;
     ASTNode* tree;
     std::string identifier;
-    VariableNode* varNode;
+    ASTNode* varNode;
     switch (getCurrentToken().getSyntaxType())
     {
         case IntegerLiteralToken:
@@ -206,9 +206,19 @@ ASTNode* Parser::parsePrimary()
             varNode = resolve(identifier, scopeTreeStack.top());
             if (varNode)
             {
+                std::cout << "Identifier: " << identifier << " was found\n";
                 if (getCurrentToken().getSyntaxType() == LeftParenthesisToken)
                 {
                     match(LeftParenthesisToken, "(");
+                    if (getCurrentToken().getSyntaxType() != RightParenthesisToken)
+                    {
+                        parsePrimary();
+                    }
+                    while (getCurrentToken().getSyntaxType() != RightParenthesisToken)
+                    {
+                        match(CommaToken, ",");
+                        parsePrimary();
+                    }
                     match(RightParenthesisToken, ")");
                     return new FunctionCallNode(identifier);
                 }
@@ -268,7 +278,8 @@ ASTNode* Parser::parseStatement()
         case WhileKeywordToken:
             return parseWhileStatement();
         default:
-            return parseExpressionStatement();
+            std::cout << "HERE";
+            return parseAssignmentStatement();
     }
     return nullptr;
 }
@@ -367,36 +378,36 @@ ASTNode* Parser::parseVariableDeclarationStatement()
      * Rather than checking the parent scope, we check the local scope
      * so that we can implement variable shadowing
      */
-    if (scopeTreeStack.top()->getVariableNode(identifier))
+    if (scopeTreeStack.top()->getNode(identifier))
     {
         std::cerr << "Error: Variable \"" << identifier << "\" already exists.\n";
         exit(EXIT_FAILURE);
     }
     //Add the local variable to the current scope
-    scopeTreeStack.top()->addEntry(identifier, t, new VariableNode(t, identifier));
+    scopeTreeStack.top()->addEntry(identifier, t, new VariableNode(t, identifier, true), false);
     token = getCurrentToken();
 
     //Implicitly typed variables require an assignment so as to deduce the type
     if (isVarType)
     {
-        match(EqualsToken, "=");
+        match(AssignmentToken, "=");
         rhs = parseExpression(0);
         match(SemicolonToken, ";");
     }
     else
     {
-        if (token.getSyntaxType() != EqualsToken)
+        if (token.getSyntaxType() != AssignmentToken)
         {
             match(SemicolonToken, ";");
         }
         else
         {
-            match(EqualsToken, "=");
+            match(AssignmentToken, "=");
             rhs = parseExpression(0);
             match(SemicolonToken, ";");
         }
     }
-    return new VariableDeclarationNode(scopeTreeStack.top()->getVariableNode(identifier), rhs, identifier);
+    return new VariableDeclarationNode(scopeTreeStack.top()->getNode(identifier), rhs, identifier);
 }
 
 ASTNode* Parser::parseReturnStatement()
@@ -415,17 +426,12 @@ ASTNode* Parser::parseFunctionDeclaration()
 {
     Type returnType;
     ASTNode* body;
+    FunctionNode* functionDeclNode;
     std::string functionIdentifier, parameterIdentifier;
     std::vector<VariableNode*> parameterList;
 
-    /**
-     * When declaring a function, the parameters are made children of the global scope,
-     * and the function body adds a new scope to the scope in which the parameters reside.
-     */
-    ScopeTreeNode* parent = scopeTreeStack.top(), * child = new ScopeTreeNode();
-    scopeTreeStack.push(child);
-    parent->addChild(child);
-    scope++;
+
+
 
     //Determine the return type of the function
     switch (getCurrentToken().getSyntaxType())
@@ -447,9 +453,19 @@ ASTNode* Parser::parseFunctionDeclaration()
     if (getCurrentToken().getSyntaxType() == IdentifierToken)
     {
         functionIdentifier = getCurrentToken().getText();
-        scopeTreeStack.top()->addEntry(functionIdentifier, returnType, nullptr);
     }
     match(IdentifierToken, "an identifier");
+
+    /**
+     * When declaring a function, the parameters are made children of the global scope,
+     * and the function body adds a new scope to the scope in which the parameters reside.
+    */
+    functionDeclNode = new FunctionNode(returnType);
+    scopeTreeStack.top()->addEntry(functionIdentifier, returnType, functionDeclNode, true);
+    ScopeTreeNode* parent = scopeTreeStack.top(), * child = new ScopeTreeNode();
+    scopeTreeStack.push(child);
+    parent->addChild(child);
+    scope++;
 
     //Parse the function parameters (if any)
     match(LeftParenthesisToken, "(");
@@ -462,9 +478,9 @@ ASTNode* Parser::parseFunctionDeclaration()
          * and add it to the function's argument list
          */
         parameterIdentifier = match(IdentifierToken, "an identifier").getText();
-        auto node = new VariableNode(IntegerPrimitive, parameterIdentifier);
+        auto node = new VariableNode(IntegerPrimitive, parameterIdentifier, true);
         parameterList.push_back(node);
-        scopeTreeStack.top()->addEntry(parameterIdentifier, IntegerPrimitive, node);
+        scopeTreeStack.top()->addEntry(parameterIdentifier, IntegerPrimitive, node, true);
 
         /**
          * If a comma is encountered, the next token cannot be a right semicolon
@@ -484,7 +500,6 @@ ASTNode* Parser::parseFunctionDeclaration()
 
     //Parse the function body
     body = parseCompoundStatement();
-
     /**
      * At this point, the scope is returned to that of the function parameters,
      * so we pop the stack and decrement the scope to return to the global scope for
@@ -492,7 +507,10 @@ ASTNode* Parser::parseFunctionDeclaration()
      */
     scopeTreeStack.pop();
     scope--;
-    return new FunctionNode(functionIdentifier, returnType, parameterList, body);
+    functionDeclNode->functionBody = body;
+    functionDeclNode->parameterList = parameterList;
+    functionDeclNode->functionName = functionIdentifier;
+    return functionDeclNode;
 }
 
 ASTNode* Parser::parseExpressionStatement()
@@ -518,17 +536,18 @@ ASTNode* Parser::parseWhileStatement()
 
 ASTNode* Parser::parseAssignmentStatement()
 {
-    ASTNode* rhs;
-    match(IdentifierToken, "an identifier");
+    ASTNode* lhs, * rhs;
+    auto identifier = match(IdentifierToken, "an identifier").getText();
+    lhs = resolve(identifier, scopeTreeStack.top());
     match(AssignmentToken, "=");
     rhs = parseExpressionStatement();
-    //Implement later:
-    return nullptr;
+    return new AssignmentNode(lhs, rhs);
 }
 
-VariableNode* Parser::resolve(std::string identifier, ScopeTreeNode* node)
+ASTNode* Parser::resolve(std::string identifier, ScopeTreeNode* node)
 {
-    auto variableNode = node->getVariableNode(identifier);
+    if (!node) { return nullptr; }
+    auto variableNode = node->getNode(identifier);
     if (!variableNode) { return resolve(identifier, node->getParentNode()); }
     else { return variableNode; }
 }

@@ -1,19 +1,29 @@
-#ifndef EBCV_H
-#define EBCV_H
+#ifndef X86_VISITOR_H
+#define X86_VISITOR_H
+
 #include "Visitor.h"
-#include <vector>
 #include <unordered_map>
-#include "ByteCodeInstruction.h"
+#include <string>
 #include "Local.h"
-class CompilerVisitor : public Visitor
+
+using reg = int;
+class x86Visitor : public Visitor
 {
 private:
-    std::vector<ByteCodeInstruction> instructions;
-    std::vector<Local> locals;
-    std::unordered_map<std::string, int> functionAddressMap;
-    int labelCount = 0, scope = 0;
-    int resolveLocal(std::string identifier);
-    bool isAssignment = false;
+    std::unordered_map<int, std::pair<std::string, bool>> registerMap
+    {
+        {0, std::pair<std::string, bool>{"%rbx", false}},
+        {1, std::pair<std::string, bool>{"%r10", false}},
+        {2, std::pair<std::string, bool>{"%r11", false}},
+        {3, std::pair<std::string, bool>{"%r12", false}},
+        {4, std::pair<std::string, bool>{"%r13", false}},
+        {5, std::pair<std::string, bool>{"%r14", false}},
+        {6, std::pair<std::string, bool>{"%r15", false}}
+    };
+    int labelCount = 0;
+    int allocateRegister();
+    int allocateLabel();
+    void freeRegister(int reg);
 
 public:
     void visitBinOPNode(BinOpNode* node);
@@ -31,7 +41,5 @@ public:
     void visitWhileNode(WhileNode* node);
     void visitAssignmentNode(AssignmentNode* node);
 
-    std::vector<ByteCodeInstruction> getInstructions();
 };
-
-#endif
+#endif 

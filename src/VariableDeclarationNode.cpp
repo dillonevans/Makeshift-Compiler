@@ -1,7 +1,7 @@
 #include "../headers/VariableDeclarationNode.h"
 #include "../headers/Visitor.h"
 
-VariableDeclarationNode::VariableDeclarationNode(VariableNode* varNode, ASTNode* rhs, std::string identifier)
+VariableDeclarationNode::VariableDeclarationNode(ASTNode* varNode, ASTNode* rhs, std::string identifier)
 {
     this->varNode = varNode;
     this->rhs = rhs;
@@ -28,7 +28,7 @@ std::string VariableDeclarationNode::getIdentifier()
     return this->identifier;
 }
 
-VariableNode* VariableDeclarationNode::getVarNode()
+ASTNode* VariableDeclarationNode::getVarNode()
 {
     return this->varNode;
 }

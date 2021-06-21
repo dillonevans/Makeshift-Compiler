@@ -14,6 +14,8 @@
 #include "../headers/ProgramNode.h"
 #include "../headers/Local.h"
 #include "../headers/WhileNode.h"
+#include "../headers/AssignmentNode.h"
+
 #include <iomanip>
 #include <iostream>
 
@@ -148,7 +150,9 @@ int CompilerVisitor::resolveLocal(std::string identifier)
 void CompilerVisitor::visitVariableNode(VariableNode* node)
 {
     int arg = resolveLocal(node->getIdentifier());
-    instructions.push_back(ByteCodeInstruction(LOAD_LOCAL, arg));
+    uint8_t opcode = isAssignment ? SET_LOCAL : LOAD_LOCAL;
+    instructions.push_back(ByteCodeInstruction(opcode, arg));
+    std::cout << "Visiting variable\n";
     return;
 }
 
@@ -231,11 +235,11 @@ void CompilerVisitor::visitWhileNode(WhileNode* node)
     //If the condition was false, jump to the end of the while loop
     endWhileIndex = instructions.size();
     instructions.push_back(ByteCodeInstruction(JF, falsePointer));
+    instructions.push_back(ByteCodeInstruction(POP));
 
     //Generate Bytecode for the body
     node->getBody()->accept(*this);
     instructions.push_back(ByteCodeInstruction(JUMP, beginWhileIndex));
-
     /**
      * This label marks the end of the while loop. When the while
      * condition is false, the instruction pointer is moved here
@@ -245,4 +249,17 @@ void CompilerVisitor::visitWhileNode(WhileNode* node)
     instructions[endWhileIndex].setConstant(instructions.size());
     instructions.push_back(ByteCodeInstruction(LABEL, labelCount++));
     instructions.push_back(ByteCodeInstruction(POP));
+
+}
+
+
+
+void CompilerVisitor::visitAssignmentNode(AssignmentNode* node)
+{
+    node->rhs->accept(*this);
+    isAssignment = true;
+    node->lhs->accept(*this);
+    isAssignment = false;
+    return;
+
 }

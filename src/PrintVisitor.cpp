@@ -122,13 +122,18 @@ void PrintVisitor::visitFunctionCallNode(FunctionCallNode* node)
 
 void PrintVisitor::visitProgramNode(ProgramNode* node)
 {
-    for (auto& programUnit : node->getProgramUnits())
+    for (const auto& programUnit : node->getProgramUnits())
     {
         programUnit->accept(*this);
     }
 }
 
 void PrintVisitor::visitWhileNode(WhileNode* node)
+{
+
+}
+
+void PrintVisitor::visitAssignmentNode(AssignmentNode* node)
 {
 
 }

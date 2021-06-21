@@ -1,7 +1,16 @@
+int test()
+{
+    var x = 1;
+    var factorial = 1;
+    while (x < 14)
+    {
+        factorial = factorial * x;
+        x = x + 1;
+        print(factorial);
+    }
+}
+
 int main()
 {
-    int a = 2;
-    int b = 3;
-    int c = a + b;
-    print(c);
+  
 }

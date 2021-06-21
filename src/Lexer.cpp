@@ -134,7 +134,7 @@ SyntaxToken Lexer::lex()
                     advance();
                     return SyntaxToken(EqualsToken, "==");
                 }
-                return SyntaxToken(EqualsToken, "=");
+                return SyntaxToken(AssignmentToken, "=");
             case '(':
                 return SyntaxToken(LeftParenthesisToken, "(");
             case ')':

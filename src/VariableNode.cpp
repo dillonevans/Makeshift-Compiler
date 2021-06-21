@@ -1,9 +1,10 @@
 #include "../headers/VariableNode.h"
 #include "../headers/Visitor.h"
-VariableNode::VariableNode(Type type, std::string identifier)
+VariableNode::VariableNode(Type type, std::string identifier, bool isLocal)
 {
     this->type = type;
     this->identifier = identifier;
+    this->isLocal = isLocal;
 };
 
 void VariableNode::accept(Visitor& v)
@@ -25,3 +26,4 @@ void VariableNode::setType(Type type)
 {
     this->type = type;
 }
+

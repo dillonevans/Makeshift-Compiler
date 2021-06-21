@@ -10,15 +10,16 @@ class ScopeTreeNode
 private:
     ScopeTreeNode* parent = nullptr;
     std::list<ScopeTreeNode*> children;
-    std::unordered_map<std::string, std::pair<Type, VariableNode*>> symbolTable;
+    std::unordered_map<std::string, std::tuple<Type, ASTNode*, bool>> symbolTable;
 
 public:
     ScopeTreeNode* getParentNode();
     std::list<ScopeTreeNode*> getChildren();
-    std::unordered_map <std::string, std::pair<Type, VariableNode*>> getSymbolTable();
-    void addEntry(std::string identifier, Type type, VariableNode* node);
+    std::unordered_map <std::string, std::tuple<Type, ASTNode*, bool>> getSymbolTable();
+    void addEntry(std::string identifier, Type type, ASTNode* node, bool isFunction);
     void addChild(ScopeTreeNode* childNode);
     void setParent(ScopeTreeNode* parent);
-    VariableNode* getVariableNode(std::string);
+    ASTNode* getNode(std::string identifier);
+    bool isFunction(std::string identifier);
 };
 #endif
