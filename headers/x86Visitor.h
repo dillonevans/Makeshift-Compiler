@@ -4,6 +4,7 @@
 #include "Visitor.h"
 #include <unordered_map>
 #include <string>
+#include <vector>
 #include "Local.h"
 
 using reg = int;
@@ -20,10 +21,14 @@ private:
         {5, std::pair<std::string, bool>{"%r14", false}},
         {6, std::pair<std::string, bool>{"%r15", false}}
     };
-    int labelCount = 0;
+    int labelCount = 0, scope = 0, localOffset = 0;
     int allocateRegister();
     int allocateLabel();
     void freeRegister(int reg);
+    bool isAssignment = false;
+    std::string variableName;
+    int resolveLocal(std::string identifier);
+    std::vector<Local> locals;
     reg allocatedRegister;
 
 public:
@@ -40,7 +45,6 @@ public:
     void visitFunctionCallNode(FunctionCallNode* node);
     void visitProgramNode(ProgramNode* node);
     void visitWhileNode(WhileNode* node);
-    void visitAssignmentNode(AssignmentNode* node);
 
 };
 #endif 

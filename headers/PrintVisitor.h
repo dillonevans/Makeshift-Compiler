@@ -25,7 +25,6 @@ public:
     void visitFunctionCallNode(FunctionCallNode* node);
     void visitProgramNode(ProgramNode* node);
     void visitWhileNode(WhileNode* node);
-    void visitAssignmentNode(AssignmentNode* node);
 
 };
 

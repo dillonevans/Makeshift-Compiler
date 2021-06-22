@@ -44,6 +44,8 @@ void PrintVisitor::visitBinOPNode(BinOpNode* node)
         case DivisionOperator:
             std::cout << "-\n";
             break;
+        case AssignmentOperator:
+            std::cout << "=\n";
 
     }
     node->left->accept(*this);
@@ -84,6 +86,7 @@ void PrintVisitor::visitPrintNode(PrintNode* node)
 void PrintVisitor::visitVariableDeclarationNode(VariableDeclarationNode* node)
 {
     printIndent();
+    std::cout << "int\n";
     node->getVarNode()->accept(*this);
     node->getRHS()->accept(*this);
 }
@@ -129,11 +132,6 @@ void PrintVisitor::visitProgramNode(ProgramNode* node)
 }
 
 void PrintVisitor::visitWhileNode(WhileNode* node)
-{
-
-}
-
-void PrintVisitor::visitAssignmentNode(AssignmentNode* node)
 {
 
 }

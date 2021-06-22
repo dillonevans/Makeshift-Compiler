@@ -196,8 +196,3 @@ void TypeCheckingVisitor::visitWhileNode(WhileNode* node)
 {
 
 }
-
-void TypeCheckingVisitor::visitAssignmentNode(AssignmentNode* node)
-{
-
-}

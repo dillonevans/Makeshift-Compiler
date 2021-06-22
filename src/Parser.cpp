@@ -16,10 +16,7 @@
 #include "../headers/FunctionNode.h"
 #include "../headers/FunctionCallNode.h"
 #include "../headers/WhileNode.h"
-#include "../headers/AssignmentNode.h"
 #include "../headers/ProgramNode.h"
-
-
 
 /**
  * Constructor
@@ -120,8 +117,6 @@ int Parser::getOperatorPrecedence(SyntaxType op)
 {
     switch (op)
     {
-        case AssignmentToken:
-            return 6;
         case EqualsToken:
             return 5;
         case MultToken:
@@ -139,6 +134,8 @@ int Parser::getOperatorPrecedence(SyntaxType op)
             return 2;
         case LogicalOrToken:
             return 1;
+        case AssignmentToken:
+            return 0;
     }
     return 0;
 }
@@ -166,6 +163,7 @@ OperatorType Parser::getOperatorType(SyntaxType op)
         case AssignmentToken:
             return AssignmentOperator;
         default:
+            std::cout << "TEST";
             exit(EXIT_FAILURE);
     }
 };
@@ -242,13 +240,26 @@ ASTNode* Parser::parsePrimary()
  */
 ASTNode* Parser::parseExpression(int minimumPrecedence)
 {
-    ASTNode* left = parsePrimary(), * right;
+    ASTNode* left = parsePrimary(), * right, * ltemp;
     SyntaxType lookAhead = getCurrentToken().getSyntaxType();
 
-    while (isBinaryOperator(lookAhead) && getOperatorPrecedence(lookAhead) > minimumPrecedence)
-    {
+    while ((isBinaryOperator(lookAhead) && getOperatorPrecedence(lookAhead) > minimumPrecedence)
+        || (isRightAssociative(lookAhead) && getOperatorPrecedence(lookAhead) == minimumPrecedence)) {
         getNextToken();
         right = parseExpression(getOperatorPrecedence(lookAhead));
+
+        /**
+         * This ensures that the left hand side of the tree is loaded into a register,
+         * and the right hand side is simply retrieved from RAM when generating the
+         * x86-64 code.
+         */
+        if (lookAhead == AssignmentToken)
+        {
+            ltemp = left;
+            left = right;
+            right = ltemp;
+        }
+
         left = new BinOpNode(left, getOperatorType(lookAhead), right);
         lookAhead = getCurrentToken().getSyntaxType();
         if (lookAhead == RightParenthesisToken || lookAhead == SemicolonToken)
@@ -279,7 +290,7 @@ ASTNode* Parser::parseStatement()
             return parseWhileStatement();
         default:
             std::cout << "HERE";
-            return parseAssignmentStatement();
+            return parseExpressionStatement();
     }
     return nullptr;
 }
@@ -354,8 +365,10 @@ ASTNode* Parser::parseVariableDeclarationStatement()
     switch (getCurrentToken().getSyntaxType())
     {
         case IntKeywordToken:
+
             match(IntKeywordToken, "int");
             t = IntegerPrimitive;
+            localOffset += 4;
             break;
         case DoubleKeywordToken:
             match(DoubleKeywordToken, "double");
@@ -507,6 +520,8 @@ ASTNode* Parser::parseFunctionDeclaration()
     functionDeclNode->functionBody = body;
     functionDeclNode->parameterList = parameterList;
     functionDeclNode->functionName = functionIdentifier;
+    functionDeclNode->stackOffset = (localOffset | 15) + 1;
+    localOffset = 0;
     return functionDeclNode;
 }
 
@@ -531,22 +546,17 @@ ASTNode* Parser::parseWhileStatement()
 
 }
 
-ASTNode* Parser::parseAssignmentStatement()
-{
-    ASTNode* lhs, * rhs;
-    auto identifier = match(IdentifierToken, "an identifier").getText();
-    lhs = resolve(identifier, scopeTreeStack.top());
-    match(AssignmentToken, "=");
-    rhs = parseExpressionStatement();
-    return new AssignmentNode(lhs, rhs);
-}
-
 ASTNode* Parser::resolve(std::string identifier, ScopeTreeNode* node)
 {
     if (!node) { return nullptr; }
     auto variableNode = node->getNode(identifier);
     if (!variableNode) { return resolve(identifier, node->getParentNode()); }
     else { return variableNode; }
+}
+
+bool Parser::isRightAssociative(SyntaxType op)
+{
+    return op == AssignmentToken;
 }
 
 /**

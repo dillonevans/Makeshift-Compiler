@@ -19,6 +19,7 @@ private:
     Lexer lexer;
     int scope = 0;
     int position = 0;
+    int localOffset = 0;
     int getOperatorPrecedence(SyntaxType op);
     bool isBinaryOperator(SyntaxType syntaxType);
     std::stack<ScopeTreeNode*> scopeTreeStack;
@@ -41,9 +42,8 @@ private:
     ASTNode* parseExpressionStatement();
     ASTNode* parseWhileStatement();
     ASTNode* parseAssignmentStatement();
-
     ASTNode* resolve(std::string identifier, ScopeTreeNode* node);
-
+    bool isRightAssociative(SyntaxType op);
 public:
     Parser(std::string text);
     ASTNode* parseProgram();

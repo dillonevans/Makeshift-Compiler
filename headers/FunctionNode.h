@@ -11,7 +11,6 @@ class FunctionNode : public ASTNode
 {
 private:
     int parameterCount;
-
 public:
     FunctionNode(Type returnType);
     FunctionNode(std::string functionName, Type returnType, std::vector<VariableNode*> parameterList, ASTNode* functionBody);
@@ -25,6 +24,7 @@ public:
     ASTNode* functionBody;
     Type returnType;
     std::string functionName;
+    int stackOffset = 0;
 
 };
 

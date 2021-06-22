@@ -8,9 +8,10 @@ private:
     int scope;
 
 public:
-    Local(std::string identifier, int scope);
+    Local(std::string identifier, int scope, int localOffset);
     std::string getIdentifier();
     int getScope();
+    int localOffset;
 };
 
 #endif

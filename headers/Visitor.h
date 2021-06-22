@@ -14,7 +14,6 @@ class ReturnNode;
 class FunctionCallNode;
 class ProgramNode;
 class WhileNode;
-class AssignmentNode;
 
 class Visitor
 {
@@ -32,7 +31,6 @@ public:
     virtual void visitFunctionCallNode(FunctionCallNode* node) = 0;
     virtual void visitProgramNode(ProgramNode* node) = 0;
     virtual void visitWhileNode(WhileNode* node) = 0;
-    virtual void visitAssignmentNode(AssignmentNode* node) = 0;
 };
 
 #endif
