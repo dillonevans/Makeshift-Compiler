@@ -2,7 +2,7 @@
 #define RETNODE_H
 
 #include "AstNode.h"
-#include "Value.h"
+#include "Type.h"
 #include "FunctionNode.h"
 class ReturnNode : public ASTNode
 {

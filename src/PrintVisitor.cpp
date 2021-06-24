@@ -15,7 +15,7 @@
 #include "../headers/Programnode.h"
 #include "../headers/Returnnode.h"
 
-#include "../headers/Value.h"
+#include "../headers/Type.h"
 #include <iostream>
 #include <string>
 
@@ -28,7 +28,7 @@ void PrintVisitor::printIndent()
 void PrintVisitor::visitBinOPNode(BinOpNode* node)
 {
     if (!node) { return; }
-    indentation++;
+    indentation += 4;
     printIndent();
     switch (node->op)
     {
@@ -50,23 +50,27 @@ void PrintVisitor::visitBinOPNode(BinOpNode* node)
     }
     node->left->accept(*this);
     node->right->accept(*this);
-    indentation--;
+    indentation -= 4;
 }
 
 void PrintVisitor::visitIntNode(IntNode* node)
 {
-    indentation++;
-    printIndent();
-    std::cout << node->value << "\n";
-    indentation--;
+    std::cout << node->value;
 }
 
 void PrintVisitor::visitCompoundStatementNode(CompoundStatementNode* node)
 {
+    indentation += 4;
+    std::cout << "{\n";
     for (auto& statement : node->getStatements())
     {
+        printIndent();
         statement->accept(*this);
+        std::cout << ";\n";
     }
+    std::cout << "}\n";
+    indentation -= 4;
+
 }
 
 void PrintVisitor::visitIfStatementNode(IfStatementNode* node)
@@ -76,18 +80,16 @@ void PrintVisitor::visitIfStatementNode(IfStatementNode* node)
 
 void PrintVisitor::visitPrintNode(PrintNode* node)
 {
-    indentation++;
-    printIndent();
+
     std::cout << "print\n";
     node->contents->accept(*this);
-    indentation--;
 }
 
 void PrintVisitor::visitVariableDeclarationNode(VariableDeclarationNode* node)
 {
-    printIndent();
-    std::cout << "int\n";
+    std::cout << "int ";
     node->getVarNode()->accept(*this);
+    std::cout << "= ";
     node->getRHS()->accept(*this);
 }
 
@@ -97,19 +99,15 @@ void PrintVisitor::visitBooleanLiteralNode(BooleanLiteralNode* node)
 
 void PrintVisitor::visitVariableNode(VariableNode* node)
 {
-    indentation++;
-    printIndent();
-    std::cout << node->getIdentifier() << "\n";
-    indentation--;
+    std::cout << node->getIdentifier() << " ";
 }
 
 void PrintVisitor::visitFunctionNode(FunctionNode* node)
 {
-    indentation++;
-    printIndent();
-    std::cout << node->getFunctionName() << "\n";
+    std::cout << "int ";
+    std::cout << node->getFunctionName();
+    std::cout << "()";
     node->getFunctionBody()->accept(*this);
-    indentation--;
     return;
 }
 
@@ -132,6 +130,11 @@ void PrintVisitor::visitProgramNode(ProgramNode* node)
 }
 
 void PrintVisitor::visitWhileNode(WhileNode* node)
+{
+
+}
+
+void PrintVisitor::visitStringLiteralNode(StringLiteralNode* node)
 {
 
 }

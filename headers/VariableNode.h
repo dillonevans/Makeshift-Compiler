@@ -2,7 +2,7 @@
 #define VARNODE_H
 
 #include "AstNode.h"
-#include "Value.h"
+#include "Type.h"
 
 class VariableNode : public ASTNode
 {

@@ -177,6 +177,7 @@ ASTNode* Parser::parsePrimary()
     ASTNode* tree;
     std::string identifier;
     ASTNode* varNode;
+    std::vector<ASTNode*> args;
     switch (getCurrentToken().getSyntaxType())
     {
         case IntegerLiteralToken:
@@ -210,15 +211,15 @@ ASTNode* Parser::parsePrimary()
                     match(LeftParenthesisToken, "(");
                     if (getCurrentToken().getSyntaxType() != RightParenthesisToken)
                     {
-                        parsePrimary();
+                        args.push_back(parsePrimary());
                     }
                     while (getCurrentToken().getSyntaxType() != RightParenthesisToken)
                     {
                         match(CommaToken, ",");
-                        parsePrimary();
+                        args.push_back(parsePrimary());
                     }
                     match(RightParenthesisToken, ")");
-                    return new FunctionCallNode(identifier);
+                    return new FunctionCallNode(identifier, args);
                 }
                 return varNode;
             }
@@ -441,7 +442,7 @@ ASTNode* Parser::parseFunctionDeclaration()
     ASTNode* body;
     FunctionNode* functionDeclNode;
     std::string functionIdentifier, parameterIdentifier;
-    std::vector<VariableNode*> parameterList;
+    std::vector<std::pair<VariableDeclarationNode*, Type>> parameterList;
 
     //Determine the return type of the function
     switch (getCurrentToken().getSyntaxType())
@@ -489,7 +490,8 @@ ASTNode* Parser::parseFunctionDeclaration()
          */
         parameterIdentifier = match(IdentifierToken, "an identifier").getText();
         auto node = new VariableNode(IntegerPrimitive, parameterIdentifier, true);
-        parameterList.push_back(node);
+        parameterList.push_back(std::pair<VariableDeclarationNode*, Type>(new VariableDeclarationNode(node, nullptr, parameterIdentifier), IntegerPrimitive));
+
         scopeTreeStack.top()->addEntry(parameterIdentifier, IntegerPrimitive, node, true);
 
         /**

@@ -1,7 +1,7 @@
 #ifndef TCV_H
 #define TCV_H
 #include "Visitor.h"
-#include "Value.h"
+#include "Type.h"
 class TypeCheckingVisitor : public Visitor
 {
 private:
@@ -23,6 +23,7 @@ public:
     void visitProgramNode(ProgramNode* node);
     void visitWhileNode(WhileNode* node);
     void setType(Type type);
+    void visitStringLiteralNode(StringLiteralNode* node);
 
     Type getType();
 };

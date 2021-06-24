@@ -1,7 +1,7 @@
 #include "../headers/FunctionNode.h"
 #include "../headers/Visitor.h"
 
-std::vector<VariableNode*> FunctionNode::getParameterList()
+std::vector<std::pair<VariableDeclarationNode*, Type>> FunctionNode::getParameterList()
 {
     return this->parameterList;
 }
@@ -21,7 +21,7 @@ void FunctionNode::accept(Visitor& v)
     v.visitFunctionNode(this);
 }
 
-FunctionNode::FunctionNode(std::string functionName, Type returnType, std::vector<VariableNode*> parameterList, ASTNode* functionBody)
+FunctionNode::FunctionNode(std::string functionName, Type returnType, std::vector<std::pair<VariableDeclarationNode*, Type>> parameterList, ASTNode* functionBody)
 {
     this->functionName = functionName;
     this->returnType = returnType;

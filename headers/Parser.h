@@ -11,7 +11,7 @@
 #include <string>
 #include "ScopeTreeNode.h"
 #include "FunctionNode.h"
-#include "Value.h"
+#include "Type.h"
 class Parser
 {
 private:
@@ -44,6 +44,7 @@ private:
     ASTNode* parseAssignmentStatement();
     ASTNode* resolve(std::string identifier, ScopeTreeNode* node);
     bool isRightAssociative(SyntaxType op);
+    std::unordered_map<std::string, int> stringLiterals;
 public:
     Parser(std::string text);
     ASTNode* parseProgram();

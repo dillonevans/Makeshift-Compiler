@@ -13,6 +13,7 @@ enum SyntaxType
     EOFToken,
     IntegerLiteralToken,
     DoubleLiteralToken,
+    StringLiteralToken,
     LeftParenthesisToken,
     RightParenthesisToken,
     LeftCurlyBraceToken,
@@ -38,7 +39,8 @@ enum SyntaxType
     LogicalOrToken,
     ReturnKeyword,
     WhileKeywordToken,
-    CommaToken
+    CommaToken,
+    DoubleQuoteToken
 };
 
 class SyntaxToken

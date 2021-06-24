@@ -3,7 +3,7 @@
 
 #include "AstNode.h"
 #include <string>
-#include "Value.h"
+#include "Type.h"
 #include "VariableNode.h"
 class VariableDeclarationNode : public ASTNode
 {

@@ -8,6 +8,7 @@
 #include "Local.h"
 
 using reg = int;
+
 class x86Visitor : public Visitor
 {
 private:
@@ -19,17 +20,23 @@ private:
         {3, std::pair<std::string, bool>{"%r12", false}},
         {4, std::pair<std::string, bool>{"%r13", false}},
         {5, std::pair<std::string, bool>{"%r14", false}},
-        {6, std::pair<std::string, bool>{"%r15", false}}
+        {6, std::pair<std::string, bool>{"%r15", false}},
+        {12, std::pair<std::string, bool>{"%rax", false}}
     };
     int labelCount = 0, scope = 0, localOffset = 0;
     int allocateRegister();
     int allocateLabel();
     void freeRegister(int reg);
     bool isAssignment = false;
+    bool isFunctionArg = false;
+    void loadLocal(int offset);
     std::string variableName;
     int resolveLocal(std::string identifier);
     std::vector<Local> locals;
     reg allocatedRegister;
+    std::string invertInstruction(BinOpNode* node);
+    int currentLabel = 0;
+
 
 public:
     void visitBinOPNode(BinOpNode* node);
@@ -45,6 +52,7 @@ public:
     void visitFunctionCallNode(FunctionCallNode* node);
     void visitProgramNode(ProgramNode* node);
     void visitWhileNode(WhileNode* node);
+    void visitStringLiteralNode(StringLiteralNode* node);
 
 };
 #endif 

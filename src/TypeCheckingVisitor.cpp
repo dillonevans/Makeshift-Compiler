@@ -11,7 +11,7 @@
 #include "../headers/FunctionNode.h"
 #include "../headers/ReturnNode.h"
 #include "../headers/ProgramNode.h"
-#include "../headers/Value.h"
+#include "../headers/Type.h"
 #include <iostream>
 
 void TypeCheckingVisitor::visitBinOPNode(BinOpNode* node)
@@ -94,6 +94,11 @@ void TypeCheckingVisitor::visitIfStatementNode(IfStatementNode* node)
 void TypeCheckingVisitor::setType(Type type)
 {
     this->type = type;
+}
+
+void TypeCheckingVisitor::visitStringLiteralNode(StringLiteralNode* node)
+{
+
 }
 
 Type TypeCheckingVisitor::getType()

@@ -3,13 +3,15 @@
 
 #include "AstNode.h"
 #include <string>
+#include <vector>
 class FunctionCallNode : public ASTNode
 {
 private:
     std::string identifier;
 public:
     std::string getIdentifier();
-    FunctionCallNode(std::string identifier);
+    std::vector<ASTNode*> arguments;
+    FunctionCallNode(std::string identifier, std::vector<ASTNode*> args);
     void accept(Visitor& v);
 };
 #endif

@@ -143,6 +143,15 @@ SyntaxToken Lexer::lex()
                 return SyntaxToken(LeftCurlyBraceToken, "{");
             case '}':
                 return SyntaxToken(RightCurlyBraceToken, "}");
+            case '"':
+                start = position - 1;
+                std::cout << "Current char: " << getCurrentChar() << "\n";
+                while (getCurrentChar() != '"') { advance(); }
+                advance();
+                length = position - start;
+                lexeme = text.substr(start, length);
+                std::cout << lexeme << "\n";
+                return SyntaxToken(StringLiteralToken, lexeme);
             case ',':
                 return SyntaxToken(CommaToken, ",");
             case ';':

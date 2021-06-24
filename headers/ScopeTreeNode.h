@@ -1,6 +1,6 @@
 #ifndef SCOPETREENODE_H
 #define SCOPETREENODE_H
-#include "Value.h"
+#include "Type.h"
 #include "VariableNode.h"
 #include <unordered_map>
 #include <string>

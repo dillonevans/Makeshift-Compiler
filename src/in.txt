@@ -1,9 +1,10 @@
+int square(int x)
+{
+    return x + x;
+}
+
 int main()
 {
-    int a = 1;
-    int b = 2;
-    int c = 3;
-    int d = 4;
-    int e = 5;
-    int f = a = b;
+    int x = "help" + 2;
+   int y = square(1);
 }

@@ -2,8 +2,8 @@
 #define FUNCNODE_H
 
 #include "AstNode.h"
-#include "Value.h"
-#include "VariableNode.h"
+#include "Type.h"
+#include "VariableDeclarationNode.h"
 #include <vector>
 #include <string>
 #include "CompoundStatementNode.h"
@@ -13,14 +13,14 @@ private:
     int parameterCount;
 public:
     FunctionNode(Type returnType);
-    FunctionNode(std::string functionName, Type returnType, std::vector<VariableNode*> parameterList, ASTNode* functionBody);
+    FunctionNode(std::string functionName, Type returnType, std::vector<std::pair<VariableDeclarationNode*, Type>> parameterList, ASTNode* functionBody);
     ASTNode* getFunctionBody();
-    std::vector<VariableNode*> getParameterList();
+    std::vector<std::pair<VariableDeclarationNode*, Type>> getParameterList();
     Type getReturnType();
     void accept(Visitor& v);
     std::string getFunctionName();
     int getParameterCount();
-    std::vector<VariableNode*> parameterList;
+    std::vector<std::pair<VariableDeclarationNode*, Type>> parameterList;
     ASTNode* functionBody;
     Type returnType;
     std::string functionName;

@@ -1,7 +1,7 @@
 #ifndef PRINT_VISITOR_H
 #define PRINT_VISITOR_H
 #include "Visitor.h"
-#include "Value.h"
+#include "Type.h"
 #include <stack>
 #include <string>
 class PrintVisitor : public Visitor
@@ -25,7 +25,7 @@ public:
     void visitFunctionCallNode(FunctionCallNode* node);
     void visitProgramNode(ProgramNode* node);
     void visitWhileNode(WhileNode* node);
-
+    void visitStringLiteralNode(StringLiteralNode* node);
 };
 
 #endif
