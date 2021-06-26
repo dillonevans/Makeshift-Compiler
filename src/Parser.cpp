@@ -1,10 +1,8 @@
 #include <iostream>
 #include <vector>
 #include "../headers/Parser.h"
-#include "../headers/BinOpNode.h"
-#include "../headers/IntNode.h"
-#include "../headers/PrintNode.h"
-
+#include "../headers/BinaryOperatorNode.h"
+#include "../headers/IntegerLiteralNode.h"
 #include "../headers/CompoundStatementNode.h"
 #include "../headers/VariableDeclarationNode.h"
 #include "../headers/BooleanLiteralNode.h"
@@ -13,10 +11,12 @@
 #include "../headers/ScopeTreeNode.h"
 #include "../headers/ReturnNode.h"
 #include "../headers/TypeCheckingVisitor.h"
-#include "../headers/FunctionNode.h"
+#include "../headers/FunctionDeclarationNode.h"
 #include "../headers/FunctionCallNode.h"
 #include "../headers/WhileNode.h"
 #include "../headers/ProgramNode.h"
+#include "../headers/StringSymbolTable.h"
+#include "../headers/StringLiteralNode.h"
 
 /**
  * Constructor
@@ -31,6 +31,8 @@ Parser::Parser(std::string text) : lexer{ text }
 
     ///Push the Global Scope Symbol Table
     scopeTreeStack.push(new ScopeTreeNode());
+    auto printfNode = new FunctionDeclarationNode(IntegerPrimitive, "printf");
+    scopeTreeStack.top()->addEntry("printf", IntegerPrimitive, printfNode, true);
 };
 
 /**
@@ -162,6 +164,12 @@ OperatorType Parser::getOperatorType(SyntaxType op)
             return LogicalOrOperator;
         case AssignmentToken:
             return AssignmentOperator;
+        case LessThanOrEqualToToken:
+            return LessThanOrEqualToOperator;
+        case GreaterThanOrEqualToToken:
+            return GreaterThanOrEqualToOperator;
+        case EqualsToken:
+            return EqualsOperator;
         default:
             std::cout << "TEST";
             exit(EXIT_FAILURE);
@@ -175,14 +183,14 @@ ASTNode* Parser::parsePrimary()
 {
     std::string result;
     ASTNode* tree;
-    std::string identifier;
+    std::string identifier, text;
     ASTNode* varNode;
     std::vector<ASTNode*> args;
     switch (getCurrentToken().getSyntaxType())
     {
         case IntegerLiteralToken:
             result = match(IntegerLiteralToken, "Integer Literal").getText();
-            return new IntNode(std::stoi(result));
+            return new IntegerLiteralNode(std::stoi(result));
         case TrueKeywordToken:
             match(TrueKeywordToken, "true");
             return new BooleanLiteralNode(true);
@@ -197,7 +205,6 @@ ASTNode* Parser::parsePrimary()
         case IdentifierToken:
             identifier = getCurrentToken().getText();
             match(IdentifierToken, "identifier");
-
             /**
              * Attempt to find the local variable node corresponding to the given identifier.
              * If it is found, return the node. Otherwise, report an error
@@ -211,12 +218,12 @@ ASTNode* Parser::parsePrimary()
                     match(LeftParenthesisToken, "(");
                     if (getCurrentToken().getSyntaxType() != RightParenthesisToken)
                     {
-                        args.push_back(parsePrimary());
+                        args.push_back(parseExpression(0));
                     }
                     while (getCurrentToken().getSyntaxType() != RightParenthesisToken)
                     {
                         match(CommaToken, ",");
-                        args.push_back(parsePrimary());
+                        args.push_back(parseExpression(0));
                     }
                     match(RightParenthesisToken, ")");
                     return new FunctionCallNode(identifier, args);
@@ -228,6 +235,10 @@ ASTNode* Parser::parsePrimary()
                 std::cerr << "Variable \"" << identifier << "\" does not exist in the current scope";
                 exit(EXIT_FAILURE);
             }
+         case StringLiteralToken:
+            text = match(StringLiteralToken, "String literal").getText();
+            StringSymbolTable::addEntry(text);
+            return new StringLiteralNode(text);
 
         default:
             match(IntegerLiteralToken, "Integer Literal");
@@ -261,7 +272,7 @@ ASTNode* Parser::parseExpression(int minimumPrecedence)
             right = ltemp;
         }
 
-        left = new BinOpNode(left, getOperatorType(lookAhead), right);
+        left = new BinaryOperatorNode(left, getOperatorType(lookAhead), right);
         lookAhead = getCurrentToken().getSyntaxType();
         if (lookAhead == RightParenthesisToken || lookAhead == SemicolonToken)
         {
@@ -279,8 +290,6 @@ ASTNode* Parser::parseStatement()
             return parseIfStatement();
         case LeftCurlyBraceToken:
             return parseCompoundStatement();
-        case PrintToken:
-            return parsePrintStatement();
         case VarKeywordToken:
         case IntKeywordToken:
         case BoolKeywordToken:
@@ -290,7 +299,6 @@ ASTNode* Parser::parseStatement()
         case WhileKeywordToken:
             return parseWhileStatement();
         default:
-            std::cout << "HERE";
             return parseExpressionStatement();
     }
     return nullptr;
@@ -343,17 +351,6 @@ ASTNode* Parser::parseIfStatement()
         elseBody = parseStatement();
     }
     return new IfStatementNode(condition, stmtBody, elseBody);
-}
-
-ASTNode* Parser::parsePrintStatement()
-{
-    ASTNode* contents = nullptr;
-    match(PrintToken, "print");
-    match(LeftParenthesisToken, "(");
-    contents = parseExpression(0);
-    match(RightParenthesisToken, ")");
-    match(SemicolonToken, ";");
-    return new PrintNode(contents);
 }
 
 ASTNode* Parser::parseVariableDeclarationStatement()
@@ -440,7 +437,7 @@ ASTNode* Parser::parseFunctionDeclaration()
 {
     Type returnType;
     ASTNode* body;
-    FunctionNode* functionDeclNode;
+    FunctionDeclarationNode* functionDeclNode;
     std::string functionIdentifier, parameterIdentifier;
     std::vector<std::pair<VariableDeclarationNode*, Type>> parameterList;
 
@@ -471,7 +468,7 @@ ASTNode* Parser::parseFunctionDeclaration()
      * When declaring a function, the parameters are made children of the global scope,
      * and the function body adds a new scope to the scope in which the parameters reside.
     */
-    functionDeclNode = new FunctionNode(returnType);
+    functionDeclNode = new FunctionDeclarationNode(returnType, functionIdentifier);
     scopeTreeStack.top()->addEntry(functionIdentifier, returnType, functionDeclNode, true);
     ScopeTreeNode* parent = scopeTreeStack.top(), * child = new ScopeTreeNode();
     scopeTreeStack.push(child);

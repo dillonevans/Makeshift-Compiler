@@ -1,20 +1,19 @@
-#include "../headers/BinOpNode.h"
+#include "../headers/BinaryOperatorNode.h"
 #include "../headers/CompoundStatementNode.h"
 #include "../headers/IfStatementNode.h"
-#include "../headers/IntNode.h"
+#include "../headers/IntegerLiteralNode.h"
 #include "../headers/TypeCheckingVisitor.h"
 #include "../headers/VariableDeclarationNode.h"
 #include "../headers/BooleanLiteralNode.h"
 #include "../headers/Visitor.h"
-#include "../headers/PrintNode.h"
 #include "../headers/VariableNode.h"
-#include "../headers/FunctionNode.h"
+#include "../headers/FunctionDeclarationNode.h"
 #include "../headers/ReturnNode.h"
 #include "../headers/ProgramNode.h"
 #include "../headers/Type.h"
 #include <iostream>
 
-void TypeCheckingVisitor::visitBinOPNode(BinOpNode* node)
+void TypeCheckingVisitor::visitBinaryOperatorNode(BinaryOperatorNode* node)
 {
     Type t1, t2;
     if (node->left) {
@@ -68,7 +67,7 @@ void TypeCheckingVisitor::visitBinOPNode(BinOpNode* node)
 
 };
 
-void TypeCheckingVisitor::visitIntNode(IntNode* node)
+void TypeCheckingVisitor::visitIntegerLiteralNode(IntegerLiteralNode* node)
 {
     this->setType(IntegerPrimitive);
     return;
@@ -104,12 +103,6 @@ void TypeCheckingVisitor::visitStringLiteralNode(StringLiteralNode* node)
 Type TypeCheckingVisitor::getType()
 {
     return this->type;
-}
-
-void TypeCheckingVisitor::visitPrintNode(PrintNode* node)
-{
-    node->contents->accept(*this);
-    return;
 }
 
 void TypeCheckingVisitor::visitVariableNode(VariableNode* node)
@@ -177,7 +170,7 @@ void TypeCheckingVisitor::visitReturnNode(ReturnNode* node)
     return;
 }
 
-void TypeCheckingVisitor::visitFunctionNode(FunctionNode* node)
+void TypeCheckingVisitor::visitFunctionDeclarationNode(FunctionDeclarationNode* node)
 {
     functionType = node->getReturnType();
     node->getFunctionBody()->accept(*this);

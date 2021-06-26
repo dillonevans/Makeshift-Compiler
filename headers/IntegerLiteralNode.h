@@ -3,11 +3,11 @@
 
 #include "AstNode.h"
 
-class IntNode : public ASTNode
+class IntegerLiteralNode : public ASTNode
 {
 public:
     int value;
-    IntNode(int value);
+    IntegerLiteralNode(int value);
     void accept(Visitor& v);
 };
 #endif

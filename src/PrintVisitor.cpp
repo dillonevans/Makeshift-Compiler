@@ -1,14 +1,13 @@
-#include "../headers/BinOpnode.h"
+#include "../headers/BinaryOperatorNode.h"
 #include "../headers/CompoundStatementnode.h"
 #include "../headers/IfStatementnode.h"
-#include "../headers/Intnode.h"
+#include "../headers/IntegerLiteralNode.h"
 #include "../headers/PrintVisitor.h"
 #include "../headers/VariableDeclarationnode.h"
 #include "../headers/BooleanLiteralnode.h"
 #include "../headers/Visitor.h"
-#include "../headers/Printnode.h"
 #include "../headers/Variablenode.h"
-#include "../headers/Functionnode.h"
+#include "../headers/FunctionDeclarationNode.h"
 #include "../headers/FunctionCallnode.h"
 
 #include "../headers/Returnnode.h"
@@ -25,7 +24,7 @@ void PrintVisitor::printIndent()
     std::cout << std::string(indentation, ' ');
 }
 
-void PrintVisitor::visitBinOPNode(BinOpNode* node)
+void PrintVisitor::visitBinaryOperatorNode(BinaryOperatorNode* node)
 {
     if (!node) { return; }
     indentation += 4;
@@ -53,7 +52,7 @@ void PrintVisitor::visitBinOPNode(BinOpNode* node)
     indentation -= 4;
 }
 
-void PrintVisitor::visitIntNode(IntNode* node)
+void PrintVisitor::visitIntegerLiteralNode(IntegerLiteralNode* node)
 {
     std::cout << node->value;
 }
@@ -78,13 +77,6 @@ void PrintVisitor::visitIfStatementNode(IfStatementNode* node)
 
 }
 
-void PrintVisitor::visitPrintNode(PrintNode* node)
-{
-
-    std::cout << "print\n";
-    node->contents->accept(*this);
-}
-
 void PrintVisitor::visitVariableDeclarationNode(VariableDeclarationNode* node)
 {
     std::cout << "int ";
@@ -102,7 +94,7 @@ void PrintVisitor::visitVariableNode(VariableNode* node)
     std::cout << node->getIdentifier() << " ";
 }
 
-void PrintVisitor::visitFunctionNode(FunctionNode* node)
+void PrintVisitor::visitFunctionDeclarationNode(FunctionDeclarationNode* node)
 {
     std::cout << "int ";
     std::cout << node->getFunctionName();

@@ -1,5 +1,5 @@
-#ifndef BINOPNODE_H
-#define BINOPNODE_H
+#ifndef BIN_OP_NODE_H
+#define BIN_OP_NODE_H
 
 #include "AstNode.h"
 
@@ -15,14 +15,15 @@ enum OperatorType
     GreaterThanOrEqualToOperator,
     LogicalAndOperator,
     LogicalOrOperator,
-    AssignmentOperator
+    AssignmentOperator,
+    EqualsOperator
 };
-class BinOpNode : public ASTNode
+class BinaryOperatorNode : public ASTNode
 {
 public:
     ASTNode* left, * right;
     OperatorType op;
-    BinOpNode(ASTNode* left, OperatorType op, ASTNode* right);
+    BinaryOperatorNode(ASTNode* left, OperatorType op, ASTNode* right);
     void accept(Visitor& v);
 };
 

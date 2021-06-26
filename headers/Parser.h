@@ -5,12 +5,12 @@
 #include "SyntaxToken.h"
 #include "Lexer.h"
 #include "AstNode.h"
-#include "BinOpNode.h"
+#include "BinaryOperatorNode.h"
 #include <unordered_map>
 #include <stack>
 #include <string>
 #include "ScopeTreeNode.h"
-#include "FunctionNode.h"
+#include "FunctionDeclarationNode.h"
 #include "Type.h"
 class Parser
 {
@@ -35,7 +35,6 @@ private:
     ASTNode* parseCompoundStatement();
     ASTNode* parseStatement();
     ASTNode* parseIfStatement();
-    ASTNode* parsePrintStatement();
     ASTNode* parseVariableDeclarationStatement();
     ASTNode* parseReturnStatement();
     ASTNode* parseFunctionDeclaration();

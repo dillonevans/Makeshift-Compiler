@@ -12,15 +12,14 @@ private:
     void printIndent();
 
 public:
-    void visitBinOPNode(BinOpNode* node);
-    void visitIntNode(IntNode* node);
+    void visitBinaryOperatorNode(BinaryOperatorNode* node);
+    void visitIntegerLiteralNode(IntegerLiteralNode* node);
     void visitCompoundStatementNode(CompoundStatementNode* node);
     void visitIfStatementNode(IfStatementNode* node);
-    void visitPrintNode(PrintNode* node);
     void visitVariableDeclarationNode(VariableDeclarationNode* node);
     void visitBooleanLiteralNode(BooleanLiteralNode* node);
     void visitVariableNode(VariableNode* node);
-    void visitFunctionNode(FunctionNode* node);
+    void visitFunctionDeclarationNode(FunctionDeclarationNode* node);
     void visitReturnNode(ReturnNode* node);
     void visitFunctionCallNode(FunctionCallNode* node);
     void visitProgramNode(ProgramNode* node);

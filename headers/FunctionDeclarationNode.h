@@ -7,13 +7,13 @@
 #include <vector>
 #include <string>
 #include "CompoundStatementNode.h"
-class FunctionNode : public ASTNode
+class FunctionDeclarationNode : public ASTNode
 {
 private:
     int parameterCount;
 public:
-    FunctionNode(Type returnType);
-    FunctionNode(std::string functionName, Type returnType, std::vector<std::pair<VariableDeclarationNode*, Type>> parameterList, ASTNode* functionBody);
+    FunctionDeclarationNode(Type returnType, std::string functionName);
+    FunctionDeclarationNode(std::string functionName, Type returnType, std::vector<std::pair<VariableDeclarationNode*, Type>> parameterList, ASTNode* functionBody);
     ASTNode* getFunctionBody();
     std::vector<std::pair<VariableDeclarationNode*, Type>> getParameterList();
     Type getReturnType();

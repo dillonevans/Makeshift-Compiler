@@ -3,7 +3,7 @@
 
 #include "AstNode.h"
 #include "Type.h"
-#include "FunctionNode.h"
+#include "FunctionDeclarationNode.h"
 class ReturnNode : public ASTNode
 {
 public:
