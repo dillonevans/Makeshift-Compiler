@@ -1,21 +1,21 @@
-#include "../headers/x86Visitor.h"
+#include "../include/x86Visitor.h"
 
 
-#include "../headers/BinaryOperatorNode.h"
-#include "../headers/CompoundStatementNode.h"
-#include "../headers/IfStatementNode.h"
-#include "../headers/IntegerLiteralNode.h"
-#include "../headers/VariableDeclarationNode.h"
-#include "../headers/BooleanLiteralNode.h"
-#include "../headers/Visitor.h"
-#include "../headers/VariableNode.h"
-#include "../headers/FunctionDeclarationNode.h"
-#include "../headers/ReturnNode.h"
-#include "../headers/ProgramNode.h"
-#include "../headers/Type.h"
-#include "../headers/FunctionCallNode.h"
-#include "../headers/StringSymbolTable.h"
-#include "../headers/StringLiteralNode.h"
+#include "../include/BinaryOperatorNode.h"
+#include "../include/CompoundStatementNode.h"
+#include "../include/IfStatementNode.h"
+#include "../include/IntegerLiteralNode.h"
+#include "../include/VariableDeclarationNode.h"
+#include "../include/BooleanLiteralNode.h"
+#include "../include/Visitor.h"
+#include "../include/VariableNode.h"
+#include "../include/FunctionDeclarationNode.h"
+#include "../include/ReturnNode.h"
+#include "../include/ProgramNode.h"
+#include "../include/Type.h"
+#include "../include/FunctionCallNode.h"
+#include "../include/StringSymbolTable.h"
+#include "../include/StringLiteralNode.h"
 #include <iostream>
 
 void x86Visitor::visitBinaryOperatorNode(BinaryOperatorNode* node)
@@ -142,9 +142,9 @@ void x86Visitor::visitBooleanLiteralNode(BooleanLiteralNode* node)
 
 void x86Visitor::visitReturnNode(ReturnNode* node)
 {
-       // std::cout << "END FUNCITON LABEL: " << this->endFunctionLabel << "\n";
+    // std::cout << "END FUNCITON LABEL: " << this->endFunctionLabel << "\n";
 
-    //Generate the code for the return value
+ //Generate the code for the return value
     node->toReturn->accept(*this);
     //Move the result into rax
     std::cout << "\tmovq " << registerMap[this->allocatedRegister].first << ", " << "%rax" << "\t\t# store the return value into %rax\n";
@@ -156,7 +156,7 @@ void x86Visitor::visitFunctionDeclarationNode(FunctionDeclarationNode* node)
     scope++;
     Type argType;
     this->endFunctionLabel = allocateLabel();
-  
+
     std::string label = node->getFunctionName();
     std::cout << "\n" << label << ":\n";
     std::cout << "\tpushq %rbp \t\t# save the base pointer\n\tmovq %rsp, %rbp \t# set new base pointer\n\n";
@@ -173,11 +173,11 @@ void x86Visitor::visitFunctionDeclarationNode(FunctionDeclarationNode* node)
         parameter.first->accept(*this);
         std::cout << "\tmovq " << argumentRegisters[index++] << ", " << (localOffset) << "(%rbp)\n";
     }
-    
+
     node->getFunctionBody()->accept(*this);
 
     printLabel(endFunctionLabel);
-   
+
     std::cout << "\n\tpopq %r15 \t\t# restore callee-saved registers\n"
         "\tpopq %r14\n"
         "\tpopq %r13\n"
@@ -205,7 +205,7 @@ void x86Visitor::visitFunctionCallNode(FunctionCallNode* node)
         node->arguments[i]->accept(*this);
         std::cout << "\tmovq " << registerMap[this->allocatedRegister].first << ", " << argumentRegisters[i] << "\n";
     }
-    std::cout <<"\tmovq $0, %rax\n";
+    std::cout << "\tmovq $0, %rax\n";
     std::cout << "\tcall " << node->getIdentifier() << "\n";
     std::cout << "\tpopq %r11\n\tpopq %r10\n";
     int r = allocateRegister();

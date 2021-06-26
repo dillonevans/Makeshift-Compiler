@@ -1,5 +1,5 @@
-#include "../headers/ReturnNode.h"
-#include "../headers/Visitor.h"
+#include "../include/ReturnNode.h"
+#include "../include/Visitor.h"
 ReturnNode::ReturnNode(ASTNode* toReturn)
 {
     this->toReturn = toReturn;

@@ -1,4 +1,4 @@
-#include "../headers/ScopeTreeNode.h"
+#include "../include/ScopeTreeNode.h"
 #include <iostream>
 
 void ScopeTreeNode::addEntry(std::string identifier, Type t, ASTNode* node, bool isFunction)

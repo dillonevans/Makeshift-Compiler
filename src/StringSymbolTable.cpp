@@ -1,7 +1,7 @@
-#include "../headers/StringSymbolTable.h"
+#include "../include/StringSymbolTable.h"
 #include <iostream>
-int StringSymbolTable::labelCount{0};
-std::unordered_map<std::string, int> StringSymbolTable::table {};
+int StringSymbolTable::labelCount{ 0 };
+std::unordered_map<std::string, int> StringSymbolTable::table{};
 void StringSymbolTable::addEntry(std::string text)
 {
     table[text] = labelCount++;

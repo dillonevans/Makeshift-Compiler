@@ -1,5 +1,5 @@
-#include "../headers/WhileNode.h"
-#include "../headers/Visitor.h"
+#include "../include/WhileNode.h"
+#include "../include/Visitor.h"
 
 WhileNode::WhileNode(ASTNode* condition, ASTNode* body)
 {

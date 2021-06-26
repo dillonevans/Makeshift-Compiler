@@ -1,4 +1,4 @@
-#include "../headers/Lexer.h"
+#include "../include/Lexer.h"
 #include <iostream>
 #include <sstream>
 Lexer::Lexer(std::string text) : file{ text }

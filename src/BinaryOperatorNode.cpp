@@ -1,5 +1,5 @@
-#include "../headers/BinaryOperatorNode.h"
-#include "../headers/Visitor.h"
+#include "../include/BinaryOperatorNode.h"
+#include "../include/Visitor.h"
 BinaryOperatorNode::BinaryOperatorNode(ASTNode* left, OperatorType op, ASTNode* right)
 {
     this->left = left;

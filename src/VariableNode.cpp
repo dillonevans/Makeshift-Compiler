@@ -1,5 +1,5 @@
-#include "../headers/VariableNode.h"
-#include "../headers/Visitor.h"
+#include "../include/VariableNode.h"
+#include "../include/Visitor.h"
 VariableNode::VariableNode(Type type, std::string identifier, bool isLocal)
 {
     this->type = type;

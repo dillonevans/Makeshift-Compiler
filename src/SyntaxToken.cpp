@@ -1,4 +1,4 @@
-#include "../headers/SyntaxToken.h"
+#include "../include/SyntaxToken.h"
 #include <string>
 
 SyntaxToken::SyntaxToken(SyntaxType syntaxType, std::string text)

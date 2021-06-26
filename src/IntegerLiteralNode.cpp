@@ -1,5 +1,5 @@
-#include "../headers/IntegerLiteralNode.h"
-#include "../headers/Visitor.h"
+#include "../include/IntegerLiteralNode.h"
+#include "../include/Visitor.h"
 IntegerLiteralNode::IntegerLiteralNode(int value)
 {
     this->value = value;

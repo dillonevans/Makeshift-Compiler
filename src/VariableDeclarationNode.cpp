@@ -1,5 +1,5 @@
-#include "../headers/VariableDeclarationNode.h"
-#include "../headers/Visitor.h"
+#include "../include/VariableDeclarationNode.h"
+#include "../include/Visitor.h"
 
 VariableDeclarationNode::VariableDeclarationNode(ASTNode* varNode, ASTNode* rhs, std::string identifier)
 {

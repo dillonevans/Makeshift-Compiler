@@ -1,22 +1,22 @@
 #include <iostream>
 #include <vector>
-#include "../headers/Parser.h"
-#include "../headers/BinaryOperatorNode.h"
-#include "../headers/IntegerLiteralNode.h"
-#include "../headers/CompoundStatementNode.h"
-#include "../headers/VariableDeclarationNode.h"
-#include "../headers/BooleanLiteralNode.h"
-#include "../headers/IfStatementNode.h"
-#include "../headers/VariableNode.h"
-#include "../headers/ScopeTreeNode.h"
-#include "../headers/ReturnNode.h"
-#include "../headers/TypeCheckingVisitor.h"
-#include "../headers/FunctionDeclarationNode.h"
-#include "../headers/FunctionCallNode.h"
-#include "../headers/WhileNode.h"
-#include "../headers/ProgramNode.h"
-#include "../headers/StringSymbolTable.h"
-#include "../headers/StringLiteralNode.h"
+#include "../include/Parser.h"
+#include "../include/BinaryOperatorNode.h"
+#include "../include/IntegerLiteralNode.h"
+#include "../include/CompoundStatementNode.h"
+#include "../include/VariableDeclarationNode.h"
+#include "../include/BooleanLiteralNode.h"
+#include "../include/IfStatementNode.h"
+#include "../include/VariableNode.h"
+#include "../include/ScopeTreeNode.h"
+#include "../include/ReturnNode.h"
+#include "../include/TypeCheckingVisitor.h"
+#include "../include/FunctionDeclarationNode.h"
+#include "../include/FunctionCallNode.h"
+#include "../include/WhileNode.h"
+#include "../include/ProgramNode.h"
+#include "../include/StringSymbolTable.h"
+#include "../include/StringLiteralNode.h"
 
 /**
  * Constructor
@@ -235,7 +235,7 @@ ASTNode* Parser::parsePrimary()
                 std::cerr << "Variable \"" << identifier << "\" does not exist in the current scope";
                 exit(EXIT_FAILURE);
             }
-         case StringLiteralToken:
+        case StringLiteralToken:
             text = match(StringLiteralToken, "String literal").getText();
             StringSymbolTable::addEntry(text);
             return new StringLiteralNode(text);

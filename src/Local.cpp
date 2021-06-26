@@ -1,4 +1,4 @@
-#include "../headers/Local.h"
+#include "../include/Local.h"
 
 Local::Local(std::string identifier, int scope, int localOffset)
 {

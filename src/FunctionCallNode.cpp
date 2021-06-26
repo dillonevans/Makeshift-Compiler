@@ -1,5 +1,5 @@
-#include "../headers/FunctionCallNode.h"
-#include "../headers/Visitor.h"
+#include "../include/FunctionCallNode.h"
+#include "../include/Visitor.h"
 FunctionCallNode::FunctionCallNode(std::string identifier, std::vector<ASTNode*> args)
 {
     this->identifier = identifier;

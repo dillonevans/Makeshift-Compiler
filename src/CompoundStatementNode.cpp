@@ -1,5 +1,5 @@
-#include "../headers/CompoundStatementNode.h"
-#include "../headers/Visitor.h"
+#include "../include/CompoundStatementNode.h"
+#include "../include/Visitor.h"
 
 /**
  * Returns a list of statements contained within the block

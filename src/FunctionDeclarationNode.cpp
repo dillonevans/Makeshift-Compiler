@@ -1,5 +1,5 @@
-#include "../headers/FunctionDeclarationNode.h"
-#include "../headers/Visitor.h"
+#include "../include/FunctionDeclarationNode.h"
+#include "../include/Visitor.h"
 
 std::vector<std::pair<VariableDeclarationNode*, Type>> FunctionDeclarationNode::getParameterList()
 {

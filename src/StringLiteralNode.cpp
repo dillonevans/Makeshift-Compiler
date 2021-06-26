@@ -1,5 +1,5 @@
-#include "../headers/StringLiteralNode.h"
-#include "../headers/Visitor.h"
+#include "../include/StringLiteralNode.h"
+#include "../include/Visitor.h"
 StringLiteralNode::StringLiteralNode(std::string value)
 {
     this->value = value;

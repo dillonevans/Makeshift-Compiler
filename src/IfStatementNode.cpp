@@ -1,23 +1,23 @@
-#include "../headers/IfStatementNode.h"
-#include "../headers/Visitor.h"
-IfStatementNode::IfStatementNode(ASTNode *condition, ASTNode *ifStmtBody, ASTNode *elseBody) : condition{condition}, ifStmtBody{ifStmtBody}, elseBody{elseBody} {}
+#include "../include/IfStatementNode.h"
+#include "../include/Visitor.h"
+IfStatementNode::IfStatementNode(ASTNode* condition, ASTNode* ifStmtBody, ASTNode* elseBody) : condition{ condition }, ifStmtBody{ ifStmtBody }, elseBody{ elseBody } {}
 
-void IfStatementNode::accept(Visitor &v)
+void IfStatementNode::accept(Visitor& v)
 {
     v.visitIfStatementNode(this);
 }
 
-ASTNode *IfStatementNode::getIfStmtBody()
+ASTNode* IfStatementNode::getIfStmtBody()
 {
     return ifStmtBody;
 }
 
-ASTNode *IfStatementNode::getCondition()
+ASTNode* IfStatementNode::getCondition()
 {
     return condition;
 }
 
-ASTNode *IfStatementNode::getElseBody()
+ASTNode* IfStatementNode::getElseBody()
 {
     return elseBody;
 }
