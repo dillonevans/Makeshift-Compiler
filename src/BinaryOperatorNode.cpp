@@ -1,6 +1,6 @@
 #include "../include/BinaryOperatorNode.h"
 #include "../include/Visitor.h"
-BinaryOperatorNode::BinaryOperatorNode(ASTNode* left, OperatorType op, ASTNode* right)
+BinaryOperatorNode::BinaryOperatorNode(ASTNode* left, BinaryOperatorType op, ASTNode* right)
 {
     this->left = left;
     this->op = op;

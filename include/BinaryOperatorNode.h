@@ -3,7 +3,7 @@
 
 #include "AstNode.h"
 
-enum OperatorType
+enum BinaryOperatorType
 {
     AdditionOperator,
     SubtractionOperator,
@@ -22,8 +22,8 @@ class BinaryOperatorNode : public ASTNode
 {
 public:
     ASTNode* left, * right;
-    OperatorType op;
-    BinaryOperatorNode(ASTNode* left, OperatorType op, ASTNode* right);
+    BinaryOperatorType op;
+    BinaryOperatorNode(ASTNode* left, BinaryOperatorType op, ASTNode* right);
     void accept(Visitor& v);
 };
 

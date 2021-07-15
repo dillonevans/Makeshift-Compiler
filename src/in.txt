@@ -1,14 +1,7 @@
-int fib(int n)
-{
-    if (n <= 1)
-    {
-        return n;
-    }
-    return fib(n-1) + fib(n-2);
-}
 
 int main()
 {
-    var n = 11;
-    printf("n = %d, fib(n) = %d", n, fib(n));   
+    int x = 2;
+    x = x + 1+2+3+4;
+    printf("Value of x: %d", x);
 }

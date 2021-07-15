@@ -1,49 +1,33 @@
-#ifndef X86_VISITOR_H
-#define X86_VISITOR_H
+#ifndef __GENTACVISITOR_H__
+#define __GENTACVISITOR_H__
+
 
 #include "Visitor.h"
 #include <unordered_map>
 #include <string>
 #include <vector>
 #include "Local.h"
+#include "ThreeAddressCode.h"
 
-using reg = int;
-
-class x86Visitor : public Visitor
+class GenTACVisitor : public Visitor
 {
 private:
-    std::unordered_map<int, std::pair<std::string, bool>> registerMap{
-        {0, std::pair<std::string, bool>{"%rbx", false}},
-        {1, std::pair<std::string, bool>{"%r10", false}},
-        {2, std::pair<std::string, bool>{"%r11", false}},
-        {3, std::pair<std::string, bool>{"%r12", false}},
-        {4, std::pair<std::string, bool>{"%r13", false}},
-        {5, std::pair<std::string, bool>{"%r14", false}},
-        {6, std::pair<std::string, bool>{"%r15", false}}
-    };
-    const std::string argumentRegisters[6]{
-        "%rdi",
-        "%rsi",
-        "%rdx",
-        "%rcx",
-        "%r8",
-        "%r9"
-    };
 
-    int labelCount = 0, scope = 0, localOffset = 0, endFunctionLabel = 0;
+
+    int labelCount = 0, scope = 0, endFunctionLabel = 0, tempCount = 0;
+    std::string currentName;
     std::string variableName;
     bool isAssignment = false;
-
+    std::vector<ThreeAddressCode> instructions;
+    int allocatedRegister;
     int allocateRegister();
     int allocateLabel();
-    void freeRegister(int reg);
     void freeAllRegisters();
     void loadLocal(int offset);
     void printLabel(int label);
     void jumpToLabel(int label);
     int resolveLocal(std::string identifier);
     std::vector<Local> locals;
-    reg allocatedRegister;
     std::string invertInstruction(BinaryOperatorNode* node);
     int currentLabel = 0;
 
@@ -62,4 +46,5 @@ public:
     void visitWhileNode(WhileNode* node);
     void visitStringLiteralNode(StringLiteralNode* node);
 };
-#endif
+
+#endif // __GENTACVISITOR_H__

@@ -27,29 +27,46 @@ void PrintVisitor::printIndent()
 void PrintVisitor::visitBinaryOperatorNode(BinaryOperatorNode* node)
 {
     if (!node) { return; }
-    indentation += 4;
-    printIndent();
+
+    if (node->op != AssignmentOperator)
+    {
+        node->left->accept(*this);
+    }
+    else
+    {
+        node->right->accept(*this);
+    }
     switch (node->op)
     {
         case AdditionOperator:
-            std::cout << "+\n";
+            std::cout << " + ";
             break;
         case SubtractionOperator:
-            std::cout << "-\n";
+            std::cout << " - ";
             break;
         case MultiplicationOperator:
-            std::cout << "*\n";
+            std::cout << " * ";
             break;
         case DivisionOperator:
-            std::cout << "-\n";
+            std::cout << " - ";
             break;
         case AssignmentOperator:
-            std::cout << "=\n";
+            std::cout << " = ";
+            break;
+        case LessThanOrEqualToOperator:
+            std::cout << " <= ";
+            break;
 
     }
-    node->left->accept(*this);
-    node->right->accept(*this);
-    indentation -= 4;
+    if (node->op != AssignmentOperator)
+    {
+        node->right->accept(*this);
+    }
+    else
+    {
+        node->left->accept(*this);
+    }
+
 }
 
 void PrintVisitor::visitIntegerLiteralNode(IntegerLiteralNode* node)
@@ -59,29 +76,35 @@ void PrintVisitor::visitIntegerLiteralNode(IntegerLiteralNode* node)
 
 void PrintVisitor::visitCompoundStatementNode(CompoundStatementNode* node)
 {
-    indentation += 4;
+    std::cout << "\n";
+    printIndent();
     std::cout << "{\n";
+    indentation += 4;
     for (auto& statement : node->getStatements())
     {
         printIndent();
         statement->accept(*this);
         std::cout << ";\n";
     }
-    std::cout << "}\n";
     indentation -= 4;
+    printIndent();
+    std::cout << "}\n";
 
 }
 
 void PrintVisitor::visitIfStatementNode(IfStatementNode* node)
 {
-
+    std::cout << "if (";
+    node->getCondition()->accept(*this);
+    std::cout << ")";
+    node->getIfStmtBody()->accept(*this);
 }
 
 void PrintVisitor::visitVariableDeclarationNode(VariableDeclarationNode* node)
 {
     std::cout << "int ";
     node->getVarNode()->accept(*this);
-    std::cout << "= ";
+    std::cout << " = ";
     node->getRHS()->accept(*this);
 }
 
@@ -91,7 +114,7 @@ void PrintVisitor::visitBooleanLiteralNode(BooleanLiteralNode* node)
 
 void PrintVisitor::visitVariableNode(VariableNode* node)
 {
-    std::cout << node->getIdentifier() << " ";
+    std::cout << node->getIdentifier();
 }
 
 void PrintVisitor::visitFunctionDeclarationNode(FunctionDeclarationNode* node)
@@ -105,12 +128,13 @@ void PrintVisitor::visitFunctionDeclarationNode(FunctionDeclarationNode* node)
 
 void PrintVisitor::visitReturnNode(ReturnNode* node)
 {
-    //node->accept(*this);
+    std::cout << "return ";
+    node->toReturn->accept(*this);
 }
 
 void PrintVisitor::visitFunctionCallNode(FunctionCallNode* node)
 {
-    // node->accept(*this);
+    std::cout << node->getIdentifier();
 }
 
 void PrintVisitor::visitProgramNode(ProgramNode* node)

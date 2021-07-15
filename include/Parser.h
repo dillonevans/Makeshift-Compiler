@@ -28,7 +28,7 @@ private:
     SyntaxToken getCurrentToken();
     SyntaxToken getNextToken();
     SyntaxToken match(SyntaxType expected, std::string text);
-    OperatorType getOperatorType(SyntaxType op);
+    BinaryOperatorType getBinaryOperatorType(SyntaxType op);
 
     ASTNode* parsePrimary();
     ASTNode* parseExpression(int minimumPrecedence);

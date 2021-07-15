@@ -4,7 +4,6 @@
 #include <unordered_map>
 namespace StringSymbolTable
 {
-    
         extern int labelCount;
         extern std::unordered_map<std::string, int> table;
         void addEntry(std::string text);

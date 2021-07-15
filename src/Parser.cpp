@@ -142,7 +142,7 @@ int Parser::getOperatorPrecedence(SyntaxType op)
     return 0;
 }
 
-OperatorType Parser::getOperatorType(SyntaxType op)
+BinaryOperatorType Parser::getBinaryOperatorType(SyntaxType op)
 {
     switch (op)
     {
@@ -272,7 +272,7 @@ ASTNode* Parser::parseExpression(int minimumPrecedence)
             right = ltemp;
         }
 
-        left = new BinaryOperatorNode(left, getOperatorType(lookAhead), right);
+        left = new BinaryOperatorNode(left, getBinaryOperatorType(lookAhead), right);
         lookAhead = getCurrentToken().getSyntaxType();
         if (lookAhead == RightParenthesisToken || lookAhead == SemicolonToken)
         {
